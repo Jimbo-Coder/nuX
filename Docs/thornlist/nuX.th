@@ -148,7 +148,7 @@ Numerical/AEILocalInterp
 !TYPE     = git
 !URL      = https://github.com/jaykalinani/CarpetX.git
 !REPO_PATH= $2
-!REPO_BRANCH = odesolvers
+!REPO_BRANCH = nuX
 !CHECKOUT =
 CarpetX/ADMBaseX
 CarpetX/Algo
