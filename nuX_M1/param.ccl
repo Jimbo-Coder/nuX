@@ -6,9 +6,6 @@ EXTENDS KEYWORD initial_hydro "Hydro initial data"
     "nuX_M1" :: ""
 }
 
-SHARES: AsterX
-USES BOOLEAN freeze_evolution
-
 #USES INT hydro_excision
 #USES KEYWORD evolution_method
 

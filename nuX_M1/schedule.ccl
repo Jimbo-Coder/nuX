@@ -323,29 +323,9 @@ if (include_GR_sources) {
     } "Compute the radiation GR sources and add them to the RHS"
 }
 
-if (backreact && !freeze_evolution) {
+if (backreact) {
     SCHEDULE nuX_M1_CalcBackreactionRHS IN ODESolvers_RHS \
-        AFTER (AsterX_RHS nuX_M1_CalcOpacity nuX_M1_CalcFakeOpacity \
-               nuX_M1_CalcClosure)
-    {
-        LANG: C
-
-        READS: ADMBaseX::lapse(interior) ADMBaseX::shift(interior)
-        READS: ADMBaseX::metric(interior) ADMBaseX::curv(interior)
-        READS: nuX_m1_mask(interior)
-        READS: fidu_vel(interior) fidu_w_lorentz(interior)
-        READS: rN(interior) rE(interior) rF(interior)
-        READS: rJ(interior) rHt(interior) rH(interior)
-        READS: opacs(interior)
-        READS: AsterX::rhs_vector(interior)
-
-        WRITES: AsterX::rhs_vector(interior)
-    } "Add explicit radiation backreaction to the fluid RHS"
-}
-
-if (backreact && freeze_evolution) {
-    SCHEDULE nuX_M1_CalcBackreactionRHS IN ODESolvers_RHS \
-        AFTER (AsterX_FreezeEvolutionRHS nuX_M1_CalcOpacity \
+        AFTER (AsterX_RHS AsterX_FreezeEvolutionRHS nuX_M1_CalcOpacity \
                nuX_M1_CalcFakeOpacity nuX_M1_CalcClosure)
     {
         LANG: C
