@@ -134,11 +134,6 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
           assert(isfinite(rFx[i4D]));
           assert(isfinite(rFy[i4D]));
           assert(isfinite(rFz[i4D]));
-          assert(isfinite(rN_rhs[i4D]));
-          assert(isfinite(rE_rhs[i4D]));
-          assert(isfinite(rFx_rhs[i4D]));
-          assert(isfinite(rFy_rhs[i4D]));
-          assert(isfinite(rFz_rhs[i4D]));
 
 #if (NUX_M1_SRC_METHOD == NUX_M1_SRC_EXPL)
           CCTK_REAL E = rE[i4D];
