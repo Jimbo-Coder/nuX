@@ -7,7 +7,6 @@
 #include "nuX_fakerates.hxx"
 
 namespace nuX_FakeRates {
-using namespace nuX_Rates;
 
 CCTK_HOST void FakeRatesDef::init() {
   DECLARE_CCTK_PARAMETERS;

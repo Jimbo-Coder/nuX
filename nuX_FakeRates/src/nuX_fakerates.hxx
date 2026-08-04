@@ -4,9 +4,15 @@
 #include <loop_device.hxx>
 #include <float.h>
 
-#include "m1_opacities.hpp"
-
 namespace nuX_FakeRates {
+
+struct FakeOpacityCoefficients {
+  CCTK_REAL eta_0[4];
+  CCTK_REAL eta[4];
+  CCTK_REAL kappa_0_a[4];
+  CCTK_REAL kappa_a[4];
+  CCTK_REAL kappa_s[4];
+};
 
 class FakeRatesDef {
 public:
@@ -27,34 +33,35 @@ public:
 
   CCTK_HOST void init();
 
-  CCTK_DEVICE inline M1Opacities ComputeFakeOpacities(const CCTK_REAL rho) {
+  CCTK_DEVICE inline FakeOpacityCoefficients
+  ComputeFakeOpacities(const CCTK_REAL rho) {
 
-    M1Opacities m1_opacities = {0};
-    m1_opacities.eta_0[0] = rho * et_nue;
-    m1_opacities.eta_0[1] = rho * et_nua;
-    m1_opacities.eta_0[2] = rho * et_nux;
-    m1_opacities.eta_0[3] = rho * et_anux;
+    FakeOpacityCoefficients coefficients = {0};
+    coefficients.eta_0[0] = rho * et_nue;
+    coefficients.eta_0[1] = rho * et_nua;
+    coefficients.eta_0[2] = rho * et_nux;
+    coefficients.eta_0[3] = rho * et_anux;
 
-    m1_opacities.kappa_0_a[0] = rho * kabs_nue;
-    m1_opacities.kappa_0_a[1] = rho * kabs_nua;
-    m1_opacities.kappa_0_a[2] = rho * kabs_nux;
-    m1_opacities.kappa_0_a[3] = rho * kabs_anux;
+    coefficients.kappa_0_a[0] = rho * kabs_nue;
+    coefficients.kappa_0_a[1] = rho * kabs_nua;
+    coefficients.kappa_0_a[2] = rho * kabs_nux;
+    coefficients.kappa_0_a[3] = rho * kabs_anux;
 
-    m1_opacities.eta[0] = rho * et_nue;
-    m1_opacities.eta[1] = rho * et_nua;
-    m1_opacities.eta[2] = rho * et_nux;
-    m1_opacities.eta[3] = rho * et_anux;
+    coefficients.eta[0] = rho * et_nue;
+    coefficients.eta[1] = rho * et_nua;
+    coefficients.eta[2] = rho * et_nux;
+    coefficients.eta[3] = rho * et_anux;
 
-    m1_opacities.kappa_a[0] = rho * kabs_nue;
-    m1_opacities.kappa_a[1] = rho * kabs_nua;
-    m1_opacities.kappa_a[2] = rho * kabs_nux;
-    m1_opacities.kappa_a[3] = rho * kabs_anux;
+    coefficients.kappa_a[0] = rho * kabs_nue;
+    coefficients.kappa_a[1] = rho * kabs_nua;
+    coefficients.kappa_a[2] = rho * kabs_nux;
+    coefficients.kappa_a[3] = rho * kabs_anux;
 
-    m1_opacities.kappa_s[0] = rho * kscat_nue;
-    m1_opacities.kappa_s[1] = rho * kscat_nua;
-    m1_opacities.kappa_s[2] = rho * kscat_nux;
-    m1_opacities.kappa_s[3] = rho * kscat_anux;
-    return m1_opacities;
+    coefficients.kappa_s[0] = rho * kscat_nue;
+    coefficients.kappa_s[1] = rho * kscat_nua;
+    coefficients.kappa_s[2] = rho * kscat_nux;
+    coefficients.kappa_s[3] = rho * kscat_anux;
+    return coefficients;
   }
 
   CCTK_DEVICE CCTK_HOST inline void
