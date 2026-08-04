@@ -216,7 +216,8 @@ AsterX/TOVSolverX
 !CHECKOUT =
 nuX/nuX_FakeRates
 nuX/nuX_M1
-nuX/nuX_Rates
-nuX/nuX_RatesToy
+nuX/nuX_NuRates
+nuX/nuX_NuRatesToy
+nuX/nuX_WeakRates
 nuX/nuX_Seeds
 nuX/nuX_Utils

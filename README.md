@@ -21,12 +21,13 @@
 
 ## Available Modules
 
-- `nuX_M1` — Core M1 evolution: fluxes, closures, source terms, analysis/diagnostics, stress–energy output  
-- `nuX_Rates` — Physical interaction rates & opacities via `bns_nurates`
-- `nuX_FakeRates` — Lightweight fake/constant rates for testing 
-- `nuX_RatesToy` — Toy module for testing 
+- `nuX_M1` — Core M1 evolution: fluxes, closures, source terms, analysis/diagnostics, stress–energy output
+- `nuX_NuRates` — Physical interaction rates & opacities via `bns_nurates`
+- `nuX_WeakRates` — Independent GPU-capable WeakRates implementation for transport and THC_M1 cross-validation
+- `nuX_FakeRates` — Lightweight fake/constant rates for testing
+- `nuX_NuRatesToy` — Toy module for testing
 - `nuX_Seeds` — Initial data for radiation fields as well as MHD variables
-- `nuX_Utils` — Tensor utilities, metric helpers, math wrappers 
+- `nuX_Utils` — Tensor utilities, metric helpers, math wrappers
 
 ---
 
@@ -52,4 +53,3 @@
 * Radice et al 2022: [MNRAS](https://academic.oup.com/mnras/article/512/1/1499/6542449) [arXiv](https://arxiv.org/abs/2111.14858)
 * Shibata et al 2021: [JPS](https://academic.oup.com/ptp/article/125/6/1255/1861577) [arXiv](https://arxiv.org/abs/1104.3937)
 * Introductory notebooks on nuX_M1, truncated moments formalism [here](https://github.com/jaykalinani/nuX_Docs) 
-
