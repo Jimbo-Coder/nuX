@@ -100,7 +100,6 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
   const GF3D2layout layout_vc(cctkGH, {0, 0, 0});
-  const int nghy = cctk_nghostzones[1];
   const GF3D2<const CCTK_REAL> gf_alp(layout_vc, alp);
   const GF3D2<const CCTK_REAL> gf_betax(layout_vc, betax);
   const GF3D2<const CCTK_REAL> gf_betay(layout_vc, betay);
@@ -121,11 +120,29 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
   // Y-face copy BCs read neighboring cells, and doing that while writing all
   // faces in one kernel causes boundary read/write races on GPU.
 
+  // Initialize physical ghost zones to vacuum before the face-specific
+  // passes. The Y-face copy passes also cover edges and corners; their source
+  // points can therefore lie in an X or Z ghost zone, which must be valid
+  // before they are read.
+  grid.loop_bnd_device<1, 1, 1>(
+      grid.nghostzones,
+      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
+        if (p.NI[0] == 0 && p.NI[1] == 0 && p.NI[2] == 0)
+          return;
+        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+          const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
+          rE[i4D] = 0.0;
+          rFx[i4D] = 0.0;
+          rFy[i4D] = 0.0;
+          rFz[i4D] = 0.0;
+          rN[i4D] = 0.0;
+        }
+      });
+
   // -X: inject Kerr beam, vacuum outside beam window. Cover both the
   // adjacent interior boundary plane and the physical ghost layers so flux
   // reconstruction sees the same analytic state on both sides of the boundary.
-  grid.loop_all_device<1, 1, 1>(
-      grid.nghostzones,
+  const auto set_lower_x =
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (!(p.BI[0] == -1 || p.NI[0] < 0))
           return;
@@ -194,11 +211,12 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
           rFz[i4D] = Fz_new;
           rN[i4D] = N_new;
         }
-      });
+      };
+  grid.loop_int_device<1, 1, 1>(grid.nghostzones, set_lower_x);
+  grid.loop_bnd_device<1, 1, 1>(grid.nghostzones, set_lower_x);
 
   // +X: vacuum, including physical ghost layers.
-  grid.loop_all_device<1, 1, 1>(
-      grid.nghostzones,
+  const auto set_upper_x =
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (!(p.BI[0] == 1 || p.NI[0] > 0))
           return;
@@ -210,55 +228,47 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
           rFz[i4D] = 0.0;
           rN[i4D] = 0.0;
         }
+      };
+  grid.loop_int_device<1, 1, 1>(grid.nghostzones, set_upper_x);
+  grid.loop_bnd_device<1, 1, 1>(grid.nghostzones, set_upper_x);
+
+  // -Y: mimic THC by copying each lower ghost point from its nearest interior
+  // Y plane. PointDesc::I0 is component- and refinement-level aware.
+  grid.loop_bnd_device<1, 1, 1>(
+      grid.nghostzones,
+      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
+        if (p.NI[1] >= 0)
+          return;
+        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+          const int i4Db = layout_cc.linear(p.i, p.j, p.k, ig);
+          const int i4Di = layout_cc.linear(p.i, p.I0[1], p.k, ig);
+          rE[i4Db] = rE[i4Di];
+          rFx[i4Db] = rFx[i4Di];
+          rFy[i4Db] = rFy[i4Di];
+          rFz[i4Db] = rFz[i4Di];
+          rN[i4Db] = rN[i4Di];
+        }
       });
 
-  // -Y: mimic THC exactly by copying every lower ghost layer from the first
-  // interior Y plane (j = nghy), but only on the physical -Y boundary.
-  const int jsrc_lo = nghy;
-  for (int d = 0; d < nghy; ++d) {
-    const int jdst = d;
-    grid.loop_all_device<1, 1, 1>(
-        grid.nghostzones,
-        [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-          if (!(p.NI[1] < 0) || p.j != jdst)
-            return;
-          for (int ig = 0; ig < ngroups * nspecies; ++ig) {
-            const int i4Db = layout_cc.linear(p.i, jdst, p.k, ig);
-            const int i4Di = layout_cc.linear(p.i, jsrc_lo, p.k, ig);
-            rE[i4Db] = rE[i4Di];
-            rFx[i4Db] = rFx[i4Di];
-            rFy[i4Db] = rFy[i4Di];
-            rFz[i4Db] = rFz[i4Di];
-            rN[i4Db] = rN[i4Di];
-          }
-        });
-  }
-
-  // +Y: mimic THC exactly by copying every upper ghost layer from the last
-  // interior Y plane (j = cctk_lsh[1] - nghy - 1), only on physical +Y.
-  const int jsrc_hi = cctk_lsh[1] - nghy - 1;
-  for (int d = 0; d < nghy; ++d) {
-    const int jdst = cctk_lsh[1] - nghy + d;
-    grid.loop_all_device<1, 1, 1>(
-        grid.nghostzones,
-        [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-          if (!(p.NI[1] > 0) || p.j != jdst)
-            return;
-          for (int ig = 0; ig < ngroups * nspecies; ++ig) {
-            const int i4Db = layout_cc.linear(p.i, jdst, p.k, ig);
-            const int i4Di = layout_cc.linear(p.i, jsrc_hi, p.k, ig);
-            rE[i4Db] = rE[i4Di];
-            rFx[i4Db] = rFx[i4Di];
-            rFy[i4Db] = rFy[i4Di];
-            rFz[i4Db] = rFz[i4Di];
-            rN[i4Db] = rN[i4Di];
-          }
-        });
-  }
+  // +Y: use the corresponding nearest interior Y plane.
+  grid.loop_bnd_device<1, 1, 1>(
+      grid.nghostzones,
+      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
+        if (p.NI[1] <= 0)
+          return;
+        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+          const int i4Db = layout_cc.linear(p.i, p.j, p.k, ig);
+          const int i4Di = layout_cc.linear(p.i, p.I0[1], p.k, ig);
+          rE[i4Db] = rE[i4Di];
+          rFx[i4Db] = rFx[i4Di];
+          rFy[i4Db] = rFy[i4Di];
+          rFz[i4Db] = rFz[i4Di];
+          rN[i4Db] = rN[i4Di];
+        }
+      });
 
   // -Z: vacuum, including physical ghost layers.
-  grid.loop_all_device<1, 1, 1>(
-      grid.nghostzones,
+  const auto set_lower_z =
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (!(p.BI[2] == -1 || p.NI[2] < 0))
           return;
@@ -270,11 +280,12 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
           rFz[i4D] = 0.0;
           rN[i4D] = 0.0;
         }
-      });
+      };
+  grid.loop_int_device<1, 1, 1>(grid.nghostzones, set_lower_z);
+  grid.loop_bnd_device<1, 1, 1>(grid.nghostzones, set_lower_z);
 
   // +Z: vacuum, including physical ghost layers.
-  grid.loop_all_device<1, 1, 1>(
-      grid.nghostzones,
+  const auto set_upper_z =
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (!(p.BI[2] == 1 || p.NI[2] > 0))
           return;
@@ -286,7 +297,9 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
           rFz[i4D] = 0.0;
           rN[i4D] = 0.0;
         }
-      });
+      };
+  grid.loop_int_device<1, 1, 1>(grid.nghostzones, set_upper_z);
+  grid.loop_bnd_device<1, 1, 1>(grid.nghostzones, set_upper_z);
 }
 
 extern "C" void nuX_Seeds_KerrSchild_Mask(CCTK_ARGUMENTS) {
