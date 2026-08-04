@@ -1,0 +1,6 @@
+# Configuration definitions for thorn nuX_NuRatesToy
+REQUIRES Loop EOSX nuX_NuRates nuX_FakeRates
+
+PROVIDES nuX_NuRatesToy
+{
+}

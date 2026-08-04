@@ -8,16 +8,16 @@
 #include "m1_opacities.hpp"
 #include "nuX_fakerates.hxx"
 
-namespace nuX_RatesToy {
+namespace nuX_NuRatesToy {
 using namespace Loop;
 using namespace EOSX;
-using namespace nuX_Rates;
+using namespace nuX_NuRates;
 using namespace nuX_FakeRates;
 
 enum class rates_t { NuRates, FakeRates };
 
-extern "C" void nuX_RatesToy_Calc(CCTK_ARGUMENTS) {
-  DECLARE_CCTK_ARGUMENTS_nuX_RatesToy_Calc;
+extern "C" void nuX_NuRatesToy_Calc(CCTK_ARGUMENTS) {
+  DECLARE_CCTK_ARGUMENTS_nuX_NuRatesToy_Calc;
   DECLARE_CCTK_PARAMETERS
 
   // Set ccc layout
@@ -47,7 +47,14 @@ extern "C" void nuX_RatesToy_Calc(CCTK_ARGUMENTS) {
           // this should just be plain fluid mass density in CU
           const BS_REAL rhoL = my_grey_opacity_params->eos_pars.nb *
                                particle_mass * kBS_MeVtog / nuX_dens_conv;
-          ratesout = fake->ComputeFakeOpacities(rhoL);
+          const auto fake_rates = fake->ComputeFakeOpacities(rhoL);
+          for (int species = 0; species < 4; ++species) {
+            ratesout.eta_0[species] = fake_rates.eta_0[species];
+            ratesout.eta[species] = fake_rates.eta[species];
+            ratesout.kappa_0_a[species] = fake_rates.kappa_0_a[species];
+            ratesout.kappa_a[species] = fake_rates.kappa_a[species];
+            ratesout.kappa_s[species] = fake_rates.kappa_s[species];
+          }
           break;
         }
 
@@ -208,4 +215,4 @@ extern "C" void nuX_RatesToy_Calc(CCTK_ARGUMENTS) {
       });
 }
 
-} // namespace nuX_RatesToy
+} // namespace nuX_NuRatesToy

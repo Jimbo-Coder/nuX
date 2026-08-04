@@ -1,8 +1,8 @@
-#Main make.code.defn file for thorn nuX_RatesToy
+#Main make.code.defn file for thorn nuX_NuRatesToy
 
 # Source files in this directory
 SRCS =	\
-  init_ratestoy.cxx \
+  init_nuratestoy.cxx \
   calc_opacs.cxx
 
 #Subdirectories containing source files
