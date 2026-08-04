@@ -1,6 +1,6 @@
-# nuX_Rates
+# nuX_NuRates
 
-`nuX_Rates` vendors the microphysics from the standalone `bns_nurates`
+`nuX_NuRates` vendors the microphysics from the standalone `bns_nurates`
 library and adapts it to the Cactus/CarpetX thorn build.
 
 ## bns_nurates Snapshot
@@ -13,30 +13,30 @@ This thorn was updated from:
 - Commit date: `2026-06-03`
 - Commit subject: `Separate non-thermal processes (#18)`
 
-The imported code keeps the `nuX_Rates` Cactus style:
+The imported code keeps the `nuX_NuRates` Cactus style:
 
 - `CCTK_HOST CCTK_DEVICE inline` annotations are used instead of Kokkos
   annotations.
 - Plain math calls are used instead of `Kokkos::` math wrappers.
 - Thorn-specific Cactus unit conversions are retained in `src/constants.hpp`.
 - Thorn setup still initializes global opacity flags in
-  `src/init_nuX_rates.cxx`.
+  `src/init_nuX_nurates.cxx`.
 
 ## Local Thorn Option
 
-`nuX_Rates` keeps one local option that is not part of the standalone
+`nuX_NuRates` keeps one local option that is not part of the standalone
 `bns_nurates` snapshot:
 
-- `nuX_Rates::beta_low_density_fallback`
+- `nuX_NuRates::beta_low_density_fallback`
 
 When enabled, beta-process absorption uses the THC/WeakRates non-degenerate
 low-density fallback below
-`nuX_Rates::beta_low_density_rho_threshold`. The default threshold is
+`nuX_NuRates::beta_low_density_rho_threshold`. The default threshold is
 `2.0e11 g/cm^3`.
 
 ## Bremsstrahlung Selection
 
-`nuX_Rates::brem_implementation` selects the standalone-library bremsstrahlung
+`nuX_NuRates::brem_implementation` selects the standalone-library bremsstrahlung
 implementation:
 
 - `HR98`: Hannestad-Raffelt 1998
@@ -50,6 +50,6 @@ storage.
 
 ## Future Updates
 
-When `bns_nurates` is updated, refresh `nuX_Rates/src` from the new standalone
+When `bns_nurates` is updated, refresh `nuX_NuRates/src` from the new standalone
 snapshot, preserve the Cactus-specific unit conversions and setup glue, and
 update the snapshot information in this README.

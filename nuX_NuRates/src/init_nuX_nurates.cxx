@@ -5,12 +5,12 @@
 #include "bns_nurates.hpp"
 #include "constants.hpp"
 
-namespace nuX_Rates {
+namespace nuX_NuRates {
 
 OpacityFlags global_opac_flags;
 OpacityParams global_opac_params;
 
-extern "C" void nuX_Rates_Setup(CCTK_ARGUMENTS) {
+extern "C" void nuX_NuRates_Setup(CCTK_ARGUMENTS) {
   DECLARE_CCTK_PARAMETERS;
 
   // reaction flags
@@ -42,4 +42,4 @@ extern "C" void nuX_Rates_Setup(CCTK_ARGUMENTS) {
   }
 }
 
-} // namespace nuX_Rates
+} // namespace nuX_NuRates

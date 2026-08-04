@@ -590,26 +590,4 @@ BS_REAL IsoScattLegCoeff(const BS_REAL omega, OpacityParams* opacity_pars,
     return leg;
 }
 
-/*===========================================================================*/
-
-// pair opacities
-#ifdef GSL_INCLUDES_H_
-MyKernelQuantity PairEmissivityAbsorptivityIntegrandFermi(
-    BS_REAL var, MyEOSParams* my_eos_params, MyKernelParams* my_kernel_params);
-MyKernelQuantity PairOpacitiesFermi(MyQuadrature* quad,
-                                    MyEOSParams* my_eos_params,
-                                    MyKernelParams* my_kernel_params);
-#endif // GSL_INCLUDES_H
-
-// bremsstrahlung opacities
-#ifdef GSL_INCLUDES_H_
-MyKernelQuantity
-BremEmissivityAbsorptivityIntegrandFermi(BS_REAL omega_prime,
-                                         MyEOSParams* my_eos_params,
-                                         MyKernelParams* my_kernel_params);
-MyKernelQuantity BremOpacitiesFermi(MyQuadrature* quad,
-                                    MyEOSParams* my_eos_params,
-                                    MyKernelParams* my_kernel_params);
-#endif // GSL_INCLUDES_H
-
 #endif // BNS_NURATES_SRC_OPACITIES_OPACITIES_HPP_

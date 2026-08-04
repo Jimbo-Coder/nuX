@@ -549,7 +549,7 @@ typedef struct SpectralOpacities SpectralOpacities;
  * ==================================================================================
  */
 
-namespace nuX_Rates {
+namespace nuX_NuRates {
   extern OpacityFlags global_opac_flags;
   extern OpacityParams global_opac_params;
 }
