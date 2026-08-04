@@ -48,7 +48,7 @@ AsterX::recon_type           = "z_vec"
 # Cactus
 # -----------------------------------------------------------------------------
 Cactus::cctk_final_time    = 10.0
-Cactus::cctk_show_schedule = yes
+Cactus::cctk_show_schedule = no
 Cactus::presync_mode       = "mixed-error"
 Cactus::terminate          = "time"
 
@@ -67,10 +67,10 @@ CarpetX::boundary_z              = none #"neumann"
 CarpetX::dtfac                   = 0.1
 CarpetX::ghost_size              = 2
 CarpetX::max_num_levels          = $nlevels
-CarpetX::ncells_x                = 4 #$ncells #4
-CarpetX::ncells_y                = 4
+CarpetX::ncells_x                = 3
+CarpetX::ncells_y                = 3
 CarpetX::ncells_z                = $ncells
-CarpetX::out_norm_every          = 10
+CarpetX::out_norm_every          = 32
 CarpetX::out_norm_omit_unstable  = yes
 CarpetX::out_norm_vars           = "all"
 CarpetX::periodic                = "yes"
@@ -81,7 +81,7 @@ CarpetX::poison_undefined_values = no
 CarpetX::prolongation_type       = "ddf"
 CarpetX::regrid_error_threshold  = 0.01
 CarpetX::regrid_every            = 100000
-CarpetX::verbose                 = yes
+CarpetX::verbose                 = no
 CarpetX::xmax                    = 4.0 #0.1
 CarpetX::xmin                    = -4.0 #-0.1
 CarpetX::ymax                    = 4.0 #0.1
@@ -152,7 +152,7 @@ EOSX::rho_max       = 1e8
 # IO
 # -----------------------------------------------------------------------------
 IO::out_dir   = $parfile
-IO::out_every = 1 #$ncells * 2 ** ($nlevels - 1) / 32
+IO::out_every = 32
 
 # -----------------------------------------------------------------------------
 # ODESolvers
@@ -168,7 +168,7 @@ ReconX::reconstruction_method = "minmod"
 # TimerReport
 # -----------------------------------------------------------------------------
 TimerReport::n_top_timers               = 50
-TimerReport::out_every                  = 10000 #$ncells * 2 ** ($nlevels - 1) / 32
+TimerReport::out_every                  = 32
 TimerReport::out_filename               = "TimerReport"
 TimerReport::output_all_timers_readable = yes
 TimerReport::output_all_timers_together = yes

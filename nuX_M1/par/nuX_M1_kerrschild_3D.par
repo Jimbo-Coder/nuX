@@ -26,16 +26,17 @@ ActiveThorns = "
 # -----------------------------------------------------------------------------
 # Global variables
 # -----------------------------------------------------------------------------
-$nlevels = 1
-$ncells  = 32 #96
-
-# Base half-cell shift so that r=0 lies on a cell face (no cell center at r=0)
-$L   = 5.0
-$dx  = (2.0*$L)/$ncells
-$off = 0.5*$dx
-
-$xmin = -$L + $off
-$xmax = +$L + $off
+$nlevels  = 1
+$dx       = 0.025
+$xmin     = 0.0
+$xmax     = 5.0
+$ymin     = -0.03
+$ymax     = 0.03
+$zmin     = 0.0
+$zmax     = 5.0
+$ncells_x = 200
+$ncells_y = 3
+$ncells_z = 200
 
 #$xmin    = -5.0
 #$xmax    = +5.0
@@ -52,14 +53,15 @@ ADMBaseX::initial_dtshift = "kerrschildx"
 KerrSchildX::mass    = 1.0
 KerrSchildX::spin    = 0.0
 KerrSchildX::epsilon = 1.0e-8
+KerrSchildX::metric_y_dependence = "xz"
 
 # -----------------------------------------------------------------------------
 # AsterX
 # -----------------------------------------------------------------------------
 AsterX::debug_mode   = "yes"
-AsterX::freeze_evolution = yes
 AsterX::flux_type    = "LxF"
 AsterX::update_tmunu = "no"
+AsterX::freeze_evolution = yes
 
 # -----------------------------------------------------------------------------
 # Cactus
@@ -72,31 +74,36 @@ Cactus::cctk_final_time    = 20.0
 # -----------------------------------------------------------------------------
 # CarpetX
 # -----------------------------------------------------------------------------
-CarpetX::verbose = yes
+CarpetX::verbose = no
+CarpetX::poison_undefined_values = no
 
 CarpetX::xmin = $xmin
-CarpetX::ymin = $xmin
-CarpetX::zmin = $xmin
+CarpetX::ymin = $ymin
+CarpetX::zmin = $zmin
 
 CarpetX::xmax = $xmax
-CarpetX::ymax = $xmax
-CarpetX::zmax = $xmax
+CarpetX::ymax = $ymax
+CarpetX::zmax = $zmax
 
 CarpetX::periodic   = no
 CarpetX::periodic_x = no
 CarpetX::periodic_y = no
 CarpetX::periodic_z = no
 
-CarpetX::boundary_x       = "linear extrapolation"
-CarpetX::boundary_y       = "linear extrapolation"
-CarpetX::boundary_z       = "linear extrapolation"
-CarpetX::boundary_upper_x = "linear extrapolation"
-CarpetX::boundary_upper_y = "linear extrapolation"
-CarpetX::boundary_upper_z = "linear extrapolation"
+CarpetX::boundary_x       = "neumann"
+CarpetX::boundary_y       = "neumann"
+CarpetX::boundary_z       = "neumann"
+CarpetX::boundary_upper_x = "neumann"
+CarpetX::boundary_upper_y = "neumann"
+CarpetX::boundary_upper_z = "neumann"
 
-CarpetX::ncells_x = $ncells
-CarpetX::ncells_y = $ncells
-CarpetX::ncells_z = $ncells
+CarpetX::ncells_x = $ncells_x
+CarpetX::ncells_y = $ncells_y
+CarpetX::ncells_z = $ncells_z
+
+CarpetX::max_grid_size_x = $ncells_x
+CarpetX::max_grid_size_y = $ncells_y
+CarpetX::max_grid_size_z = $ncells_z
 
 CarpetX::max_num_levels         = $nlevels
 CarpetX::regrid_every           = 100000
@@ -104,22 +111,20 @@ CarpetX::blocking_factor_x      = 1
 CarpetX::blocking_factor_y      = 1
 CarpetX::blocking_factor_z      = 1
 CarpetX::regrid_error_threshold = 0.01
+CarpetX::refine_grid_layout     = no
 
 CarpetX::prolongation_type = "ddf"
 CarpetX::ghost_size        = 3
-CarpetX::dtfac             = 0.25
+CarpetX::dtfac             = 0.2
 
-CarpetX::out_norm_every         = 50
-CarpetX::out_norm_omit_unstable = yes
-CarpetX::out_norm_vars          = "all"
-
-CarpetX::out_tsv_vars = "
+CarpetX::out_openpmd_vars = "
     ADMBaseX::lapse
     ADMBaseX::shift
     ADMBaseX::metric
     nuX_M1::rN
     nuX_M1::rE
-    nux_M1::rf
+    nuX_M1::nuX_m1_mask
+    nuX_M1::rF
     nuX_M1::rP
     nuX_M1::chi
     nuX_M1::rnnu
@@ -127,11 +132,10 @@ CarpetX::out_tsv_vars = "
     nuX_M1::rHt
     nuX_M1::rH
     nuX_M1::fidu_vel
+    nuX_M1::fidu_w_lorentz
     nuX_M1::opacs
-    nuX_M1::nu_flux_x
-    nuX_M1::nu_flux_y
-    nuX_M1::nu_flux_z
-    nuX_M1::radial_fluxes
+    nuX_M1::nueave
+    nuX_M1::fluidsources
 "
 
 # -----------------------------------------------------------------------------
@@ -160,17 +164,17 @@ EOSX::eps_max       = 1e8
 # IO
 # -----------------------------------------------------------------------------
 IO::out_dir   = $parfile
-IO::out_every = 20
+IO::out_every = 10
 
 # -----------------------------------------------------------------------------
 # ODESolvers
 # -----------------------------------------------------------------------------
-ODESolvers::method = "IMEX42L"
+ODESolvers::method = "RK4"
 
 # -----------------------------------------------------------------------------
 # ReconX
 # -----------------------------------------------------------------------------
-ReconX::reconstruction_method = "wenoz"
+ReconX::reconstruction_method = "minmod"
 
 # -----------------------------------------------------------------------------
 # TimerReport
@@ -205,11 +209,13 @@ nuX_M1::closure_maxiter      = 1000
 nuX_M1::fiducial_velocity    = "lab"
 nuX_M1::include_fluxes       = "yes"
 nuX_M1::include_GR_sources   = "yes"
+nuX_M1::grsource_spatial_order = 4
+nuX_M1::mindiss              = 0.1
 nuX_M1::minmod_theta         = 1.0
 nuX_M1::source_epsabs        = 1e-8
 nuX_M1::reset_to_equilibrium = "no"
 nuX_M1::rates_lib            = "FakeRates"
-nuX_M1::verbose              = "yes"
+nuX_M1::verbose              = "no"
 
 # -----------------------------------------------------------------------------
 # nuX_Seeds

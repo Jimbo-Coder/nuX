@@ -46,7 +46,7 @@ AsterX::update_tmunu = "no"
 # -----------------------------------------------------------------------------
 # Cactus
 # -----------------------------------------------------------------------------
-Cactus::cctk_show_schedule = yes
+Cactus::cctk_show_schedule = no
 
 Cactus::presync_mode = "mixed-error"
 
@@ -56,7 +56,7 @@ Cactus::cctk_final_time = 10.0
 # -----------------------------------------------------------------------------
 # CarpetX
 # -----------------------------------------------------------------------------
-CarpetX::verbose = yes
+CarpetX::verbose = no
 
 CarpetX::xmin = -0.1
 CarpetX::ymin = -0.1
@@ -78,8 +78,8 @@ CarpetX::periodic_z = "yes"
 #CarpetX::boundary_upper_y = "linear extrapolation"
 #CarpetX::boundary_upper_z = "linear extrapolation"
 
-CarpetX::ncells_x = 2
-CarpetX::ncells_y = 2
+CarpetX::ncells_x = 3
+CarpetX::ncells_y = 3
 CarpetX::ncells_z = $ncells
 
 CarpetX::max_num_levels = $nlevels
@@ -145,7 +145,7 @@ EOSX::eps_max = 1e8
 # IO
 # -----------------------------------------------------------------------------
 IO::out_dir = $parfile
-IO::out_every = 10 #$ncells * 2 ** ($nlevels - 1) / 32
+IO::out_every = 32
 
 # -----------------------------------------------------------------------------
 # ODESolvers
@@ -160,7 +160,7 @@ ReconX::reconstruction_method = "wenoz"
 # -----------------------------------------------------------------------------
 # TimerReport
 # -----------------------------------------------------------------------------
-TimerReport::out_every = 10 #$ncells * 2 ** ($nlevels - 1) / 32
+TimerReport::out_every = 32
 TimerReport::out_filename = "TimerReport"
 TimerReport::output_all_timers_together = yes
 TimerReport::output_all_timers_readable = yes
