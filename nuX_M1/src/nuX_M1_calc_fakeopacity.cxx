@@ -79,6 +79,7 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
             eta_0[i4D] = 0.0;
             eta_1[i4D] = 0.0;
             scat_1[i4D] = 0.0;
+            nueave[i4D] = 0.0;
           }
           return;
         }
@@ -109,16 +110,15 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
             nudens_1[4]; // force this to be 4 b/c nurates expects 4
         for (int ig = 0; ig < ngroups * nspecies; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          const CCTK_REAL dup_fac =
-              1.0 / ((1.0 + (ig > 1)) * (1.0 + (ng == 3)));
+          const CCTK_REAL in_fac = (ig == 2 && ng == 3) ? 0.25 : 1.0;
 
-          nudens_0[ig] = dup_fac * rnnu[i4D] / volformL;
-          nudens_1[ig] = dup_fac * rJ[i4D] / volformL;
+          nudens_0[ig] = in_fac * rnnu[i4D] / volformL;
+          nudens_1[ig] = in_fac * rJ[i4D] / volformL;
 
           // Fill data for anti-heavy neutrinos if only 3 species are evolved.
           if (ig == 2 && ng == 3) {
-            nudens_0[3] = dup_fac * rnnu[i4D] / volformL;
-            nudens_1[3] = dup_fac * rJ[i4D] / volformL;
+            nudens_0[3] = in_fac * rnnu[i4D] / volformL;
+            nudens_1[3] = in_fac * rJ[i4D] / volformL;
           }
         }
         // Convert emissivities, opacities from nurates
@@ -129,8 +129,6 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
 
         for (int ig = 0; ig < ngroups * nspecies; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          const CCTK_REAL out_fac = (1.0 + (ig > 1)) * (1.0 + (ng == 3));
-
           abs_0_loc[ig] = coeffs.kappa_0_a[ig];
           abs_1_loc[ig] = coeffs.kappa_a[ig];
           scat_0_loc[ig] = 0.0;
@@ -224,7 +222,10 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
           }
 
           // Set the neutrino energies
-          nueave[i4D] = nudens_1 / nudens_0;
+          // The equilibrium mean energy is undefined when FakeRates is used
+          // with zero emissivity.  In that case both equilibrium moments are
+          // zero, and source_therm_limit must not use an equilibrium energy.
+          nueave[i4D] = nudens_0 > 0.0 ? nudens_1 / nudens_0 : 0.0;
 
           // Correct absorption opacities for non-LTE effects
           // (kappa ~ E_nu^2)

@@ -1,0 +1,7 @@
+# Main make.code.defn file for thorn nuX_WeakRates
+
+SRCS = \
+init_nuX_weakrates.cxx \
+nuX_weakrates.cxx
+
+SUBDIRS =

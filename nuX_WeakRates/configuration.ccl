@@ -1,0 +1,7 @@
+# Configuration definitions for thorn nuX_WeakRates
+
+REQUIRES Loop
+
+PROVIDES nuX_WeakRates
+{
+}

@@ -1,5 +1,6 @@
 #include <algorithm>
-#include <cstring>
+#include <cmath>
+#include <limits>
 #include <loop_device.hxx>
 
 #include "cctk.h"
@@ -16,6 +17,16 @@ namespace nuX_M1 {
 using namespace Arith;
 using namespace Loop;
 using namespace AsterUtils;
+
+// Compute a finite fiducial Lorentz factor.
+static CCTK_HOST CCTK_DEVICE CCTK_ATTRIBUTE_ALWAYS_INLINE inline CCTK_REAL
+safe_w_lorentz(vec<CCTK_REAL, 3> const &v_low,
+               vec<CCTK_REAL, 3> const &v_up) {
+  CCTK_REAL const v2 = calc_contraction(v_low, v_up);
+  if (!isfinite(v2) || v2 <= 0.0 || v2 >= 1.0)
+    return CCTK_REAL(1);
+  return 1.0 / sqrt(1.0 - v2);
+}
 
 extern "C" void nuX_M1_FiducialVelocity(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_M1_FiducialVelocity;
@@ -60,7 +71,7 @@ extern "C" void nuX_M1_FiducialVelocity(CCTK_ARGUMENTS) {
           v_up(2) = velz[ijk];
 
           v_low = calc_contraction(g_avg, v_up);
-          w_lorentz = calc_wlorentz(v_low, v_up);
+          w_lorentz = safe_w_lorentz(v_low, v_up);
 
           fidu_w_lorentz[ijk] = w_lorentz;
         });
@@ -91,9 +102,7 @@ extern "C" void nuX_M1_FiducialVelocity(CCTK_ARGUMENTS) {
           const vec<CCTK_REAL, 3> v_low = calc_contraction(g_avg, v_up);
 
           // Lorentz factor
-          const CCTK_REAL v2 = calc_contraction(v_up, v_low);
-
-          fidu_w_lorentz[ijk] = 1.0 / sqrt(1.0 - v2);
+          fidu_w_lorentz[ijk] = safe_w_lorentz(v_low, v_up);
         });
 
   } else {

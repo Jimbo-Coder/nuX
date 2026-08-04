@@ -12,6 +12,7 @@
 #include "m1_opacities.hpp"
 #include "nuX_M1_macro.hxx"
 #include "nuX_M1_weak_equil.hxx"
+#include "nuX_weakrates.hxx"
 #include "nuX_utils.hxx"
 #include "setup_eos.hxx"
 
@@ -57,6 +58,8 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
   CCTK_REAL const dt =
       step_delta_time > 0.0 ? step_delta_time : CCTK_DELTA_TIME;
 
+  const bool use_weakrates = CCTK_Equals(rates_lib, "WeakRates");
+
   // NuRates Setup
   // Init structs for nurates calls
   MyQuadrature my_quad = {.type = kGauleg,
@@ -83,6 +86,7 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
 
   // Setup EOS
   auto eos_3p = global_eos_3p_tab3d;
+  auto weakrates = nuX_WeakRates::global_weakrates;
 
   // Setup Printer
   // thc::Printer::start(
@@ -104,6 +108,7 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
             eta_0[i4D] = 0.0;
             eta_1[i4D] = 0.0;
             scat_1[i4D] = 0.0;
+            nueave[i4D] = 0.0;
           }
           return;
         }
@@ -116,7 +121,7 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
 
         /*---------------- vvv NuRates boilerplate vvv -------------*/
         // Init GreyOpacs struct
-        GreyOpacityParams my_grey_opacity_params;
+        GreyOpacityParams my_grey_opacity_params = {};
 
         // Neutrino reactions
         my_grey_opacity_params.opacity_flags = opacity_flags;
@@ -156,11 +161,10 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
             nudens_1[4]; // force this to be 4 b/c nurates expects 4
         for (int ig = 0; ig < ngroups * nspecies; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          const CCTK_REAL dup_fac =
-              1.0 / ((1.0 + (ig > 1)) * (1.0 + (ng == 3)));
+          const CCTK_REAL in_fac = (ig == 2 && ng == 3) ? 0.25 : 1.0;
 
-          nudens_0[ig] = dup_fac * rnnu[i4D] / volformL;
-          nudens_1[ig] = dup_fac * rJ[i4D] / volformL;
+          nudens_0[ig] = in_fac * rnnu[i4D] / volformL;
+          nudens_1[ig] = in_fac * rJ[i4D] / volformL;
           my_grey_opacity_params.m1_pars.n[ig] =
               nudens_0[ig] * nuX_ndens_conv; // fm^-3 to nm^-3
           my_grey_opacity_params.m1_pars.J[ig] =
@@ -169,8 +173,8 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
 
           // Fill data for anti-heavy neutrinos if only 3 species are evolved.
           if (ig == 2 && ng == 3) {
-            nudens_0[3] = dup_fac * rnnu[i4D] / volformL;
-            nudens_1[3] = dup_fac * rJ[i4D] / volformL;
+            nudens_0[3] = in_fac * rnnu[i4D] / volformL;
+            nudens_1[3] = in_fac * rJ[i4D] / volformL;
             my_grey_opacity_params.m1_pars.n[3] =
                 nudens_0[3] * nuX_ndens_conv; // fm^-3 to nm^-3
             my_grey_opacity_params.m1_pars.J[3] =
@@ -191,8 +195,52 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
           gpu_quad.points[idx] = my_quad.points[idx];
         }
 
-        M1Opacities coeffs =
-            ComputeM1Opacities(&gpu_quad, &gpu_quad, &my_grey_opacity_params);
+        M1Opacities coeffs = {};
+        if (use_weakrates) {
+          using tabulated_eos = EOSX::eos_3p_tabulated3d;
+          const CCTK_REAL lr =
+              log(fmin(fmax(rhoL, eos_3p->rgrho.min), eos_3p->rgrho.max));
+          const CCTK_REAL lt =
+              log(fmin(fmax(tempL, eos_3p->rgtemp.min), eos_3p->rgtemp.max));
+          const auto eos_state =
+              eos_3p->interptable
+                  ->interpolate<tabulated_eos::EV::MU_E,
+                                tabulated_eos::EV::MU_P,
+                                tabulated_eos::EV::MU_N,
+                                tabulated_eos::EV::XA,
+                                tabulated_eos::EV::XH,
+                                tabulated_eos::EV::XN,
+                                tabulated_eos::EV::XP,
+                                tabulated_eos::EV::ABAR,
+                                tabulated_eos::EV::ZBAR>(lr, lt, yeL);
+          const nuX_WeakRates::EOSState weak_eos = {
+              rhoL * nuX_dens_conv * 1.0e21,
+              tempL,
+              yeL,
+              particle_mass,
+              eos_state[0],
+              eos_state[1],
+              eos_state[2],
+              eos_state[3],
+              eos_state[4],
+              eos_state[5],
+              eos_state[6],
+              eos_state[7],
+              eos_state[8]};
+          const auto weak_coeffs = weakrates->compute_rates(weak_eos);
+          for (int ig = 0; ig < ng; ++ig) {
+            // WeakRates returns cgs coefficients. Convert them to the native
+            // NuRates units consumed by the common M1 post-processing below.
+            coeffs.eta_0[ig] = weak_coeffs.eta_0[ig] * 1.0e-21;
+            coeffs.eta[ig] = weak_coeffs.eta[ig] * 1.0e-21;
+            coeffs.kappa_0_a[ig] = weak_coeffs.kappa_0_a[ig] * 1.0e-7;
+            coeffs.kappa_a[ig] = weak_coeffs.kappa_a[ig] * 1.0e-7;
+            coeffs.kappa_s[ig] = weak_coeffs.kappa_s[ig] * 1.0e-7;
+          }
+        } else {
+          coeffs = ComputeM1Opacities(&gpu_quad, &gpu_quad,
+                                      &my_grey_opacity_params);
+        }
 
         // Convert emissivities, opacities from nurates
         CCTK_REAL kappa_0_loc[MAX_GROUPSPECIES], kappa_1_loc[MAX_GROUPSPECIES];
@@ -202,7 +250,8 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
 
         for (int ig = 0; ig < ngroups * nspecies; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          const CCTK_REAL out_fac = (1.0 + (ig > 1)) * (1.0 + (ng == 3));
+          const CCTK_REAL out_fac =
+              (!use_weakrates && ig == 2 && ng == 3) ? 4.0 : 1.0;
 
           abs_0_loc[ig] = coeffs.kappa_0_a[ig] * nuX_length_conv;
           abs_1_loc[ig] = coeffs.kappa_a[ig] * nuX_length_conv;
@@ -349,7 +398,7 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
           }
 
           // Set the neutrino energies
-          nueave[i4D] = nudens_1 / nudens_0;
+          nueave[i4D] = nudens_0 > 0.0 ? nudens_1 / nudens_0 : 0.0;
 
           // Correct absorption opacities for non-LTE effects
           // (kappa ~ E_nu^2)
@@ -384,6 +433,7 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
             eta_0[i4D] = abs_0[i4D] * nudens_0;
             eta_1[i4D] = abs_1[i4D] * nudens_1;
           }
+
         }
       }); // UTILS_ENDLOOP3(thc_m1_calc_opacity);
           // Done with printing

@@ -1,0 +1,7 @@
+# Schedule definitions for thorn nuX_WeakRates
+
+SCHEDULE nuX_WeakRates_Setup AT CCTK_WRAGH
+{
+    LANG: C
+    OPTIONS: GLOBAL
+} "Set up WeakRates parameters"

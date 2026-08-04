@@ -199,7 +199,7 @@ nuX_M1::bc_type            = "none"
 nuX_M1::closure_epsilon    = 1e-5
 nuX_M1::include_fluxes     = "yes"
 nuX_M1::verbose            = "no"
-nuX_M1::use_fakerates      = "yes"
+nuX_M1::rates_lib          = "FakeRates"
 
 # -----------------------------------------------------------------------------
 # nuX_Seeds

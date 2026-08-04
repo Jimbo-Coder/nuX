@@ -94,7 +94,7 @@ extern "C" void nuX_RatesToy_Calc(CCTK_ARGUMENTS) {
       grid.nghostzones,
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         // Init GreyOpacs struct
-        GreyOpacityParams my_grey_opacity_params;
+        GreyOpacityParams my_grey_opacity_params = {};
 
         // Neutrino reactions
         my_grey_opacity_params.opacity_flags = opacity_flags;
@@ -148,10 +148,8 @@ extern "C" void nuX_RatesToy_Calc(CCTK_ARGUMENTS) {
         // Convert M1 Data to nurates
         for (int ig = 0; ig < ngroups * nspecies; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          CCTK_REAL in_fac = 1.0;
-          if (ig == 2)
-            CCTK_REAL in_fac =
-                1.0 / 4.0; // Heavy neutrinos account for 4 species
+          const CCTK_REAL in_fac =
+              ig == 2 ? 0.25 : 1.0; // Heavy neutrinos account for 4 species
           my_grey_opacity_params.m1_pars.n[ig] =
               rnt[i4D] * nuX_ndens_conv * in_fac; // fm^-3 to nm^-3
           my_grey_opacity_params.m1_pars.J[ig] =
@@ -189,9 +187,8 @@ extern "C" void nuX_RatesToy_Calc(CCTK_ARGUMENTS) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
 
           if (ratestype == rates_t::NuRates) {
-            CCTK_REAL out_fac = 1.0;
-            if (ig == 2)
-              CCTK_REAL out_fac = 4.0; // Heavy neutrinos account for 4 species
+            const CCTK_REAL out_fac =
+                ig == 2 ? 4.0 : 1.0; // Heavy neutrinos account for 4 species
 
             abs_0t[i4D] = coeffs.kappa_0_a[ig] * nuX_length_conv;
             abs_1t[i4D] = coeffs.kappa_a[ig] * nuX_length_conv;

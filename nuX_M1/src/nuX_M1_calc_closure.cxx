@@ -111,8 +111,15 @@ extern "C" void nuX_M1_CalcClosure(CCTK_ARGUMENTS) {
             E_closure = CCTK_REAL(0.0);
           }
 
+          assert(isfinite(E_closure));
+          assert(isfinite(rFx[i4D]));
+          assert(isfinite(rFy[i4D]));
+          assert(isfinite(rFz[i4D]));
+          assert(isfinite(tensor::dot(g_uu, F_d, F_d)));
+          CCTK_REAL const W_safe = isfinite(W) && W > 0.0 ? W : 1.0;
+
           calc_closure(cctkGH, p.i, p.j, p.k, ig, closure_fun, g_dd, g_uu, n_d,
-                       W, u_u, v_d, proj_ud, E_closure, F_d, &chi[i4D], &P_dd,
+                       W_safe, u_u, v_d, proj_ud, E_closure, F_d, &chi[i4D], &P_dd,
                        closure_epsilon, closure_maxiter, use_fallback != 0);
           unpack_P_dd(P_dd, &rPxx[i4D], &rPxy[i4D], &rPxz[i4D], &rPyy[i4D],
                       &rPyz[i4D], &rPzz[i4D]);
@@ -138,7 +145,7 @@ extern "C" void nuX_M1_CalcClosure(CCTK_ARGUMENTS) {
           tensor::contract(g_uu, H_d, &H_u);
           assemble_fnu(u_u, rJ[i4D], H_u, &fnu_u, rad_E_floor);
           CCTK_REAL const Gamma =
-              compute_Gamma(fidu_w_lorentz[ijk], v_u, rJ[i4D], rE[i4D], F_d,
+              compute_Gamma(W_safe, v_u, rJ[i4D], rE[i4D], F_d,
                             rad_E_floor, rad_eps);
           assert(Gamma > 0);
           rnnu[i4D] = rN[i4D] / Gamma;

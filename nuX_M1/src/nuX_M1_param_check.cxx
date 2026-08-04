@@ -1,5 +1,8 @@
+#include <cassert>
+
 #include "cctk.h"
 #include "cctk_Arguments.h"
+#include "cctk_Functions.h"
 #include "cctk_Parameters.h"
 
 namespace nuX_M1 {
@@ -14,6 +17,35 @@ extern "C" void nuX_M1_ParamCheck(CCTK_ARGUMENTS) {
       CCTK_PARAMWARN("nuX_M1::optimize_prolongation requires at least "
                      "four ghost points");
     }
+  }
+
+  int method_type;
+  const void *const method_p =
+      CCTK_ParameterGet("method", "ODESolvers", &method_type);
+  assert(method_p);
+  assert(method_type == PARAMETER_KEYWORD);
+  const char *const method =
+      *static_cast<const char *const *>(method_p);
+  if ((CCTK_Equals(method, "IMEX42L") || CCTK_Equals(method, "IMEX32L")) &&
+      source_limiter >= 0) {
+    CCTK_PARAMWARN("nuX_M1::source_limiter must be -1 with IMEX42L and "
+                   "IMEX32L; limiting individual diagonal source updates "
+                   "destroys the L-stable stage cancellation");
+  }
+
+  if (CCTK_Equals(rates_lib, "FakeRates")) {
+    if (!CCTK_IsThornActive("nuX_FakeRates")) {
+      CCTK_PARAMWARN("nuX_M1 requires the nuX_FakeRates thorn when "
+                     "nuX_M1::rates_lib is FakeRates");
+    }
+  } else if (CCTK_Equals(rates_lib, "WeakRates")) {
+    if (!CCTK_IsThornActive("nuX_WeakRates")) {
+      CCTK_PARAMWARN("nuX_M1 requires the nuX_WeakRates thorn when "
+                     "nuX_M1::rates_lib is WeakRates");
+    }
+  } else if (!CCTK_IsThornActive("nuX_Rates")) {
+    CCTK_PARAMWARN("nuX_M1 requires the nuX_Rates thorn when "
+                   "nuX_M1::rates_lib is NuRates");
   }
 }
 

@@ -1,7 +1,9 @@
+#include <cmath>
+
 #include "cctk.h"
 #include "cctk_Arguments.h"
+#include "cctk_Functions.h"
 #include "cctk_Parameters.h"
-#include <cmath>
 
 #include "nuX_M1_macro.hxx"
 #include "nuX_M1_closure.hxx"
@@ -149,6 +151,9 @@ extern "C" void nuX_M1_AddToTmunu(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_M1_AddToTmunu;
   DECLARE_CCTK_PARAMETERS;
 
+  if (ODESolvers_InPreImplicitStage())
+    return;
+
   if (verbose) {
     CCTK_INFO("nuX_M1_AddToTmunu");
   }
@@ -163,6 +168,7 @@ extern "C" void nuX_M1_AddToTmunu(CCTK_ARGUMENTS) {
   default:
     CCTK_ERROR("tmunu_interp_order must be set to 2 or 4.");
   }
+
 }
 
 } // namespace nuX_M1

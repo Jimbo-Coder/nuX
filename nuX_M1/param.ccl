@@ -18,7 +18,7 @@ BOOLEAN add_to_Tmunu "Add radiation to the global stress-energy tensor" STEERABL
 {
 } "yes"
 
-BOOLEAN backreact "Add radiation-matter backreaction as an explicit fluid RHS source" STEERABLE=ALWAYS
+BOOLEAN backreact "Couple radiation-matter interaction sources conservatively" STEERABLE=ALWAYS
 {
 } "yes"
 
@@ -116,11 +116,11 @@ REAL source_epsrel "Target relative precision for the nonlinear solver" STEERABL
     (0:* :: "Any target precision"
 } 1e-5
 
-REAL source_limiter "Limit the source terms to avoid nonphysical states" STEERABLE=ALWAYS
+REAL source_limiter "Legacy fractional limiter for non-IMEX source updates" STEERABLE=ALWAYS
 {
     -1    :: "No limiting"
-    [0:1] :: "Limiter value (0: sources are disabled, 1: sources are limited to avoid negative energies, x: something in between)"
-} 0.5
+    [0:1] :: "Not compatible with IMEX42L or IMEX32L stage cancellation"
+} -1.0
 
 INT source_maxiter "Maximum number of iterations in the nonlinear solver" STEERABLE=ALWAYS
 {
@@ -229,9 +229,12 @@ BOOLEAN verbose "Debug output" STEERABLE=always
 {
 } "no"
 
-BOOLEAN use_fakerates "Whether to use fakerates for testing" STEERABLE=always
+KEYWORD rates_lib "Reaction-rate library used by nuX_M1" STEERABLE=ALWAYS
 {
-} "no"
+    "NuRates"   :: "Use the nuX_Rates microphysics library"
+    "WeakRates" :: "Use the nuX_WeakRates analytic library"
+    "FakeRates" :: "Use the nuX_FakeRates test library"
+} "NuRates"
 
 SHARES: EOSX
 USES CCTK_REAL particle_mass

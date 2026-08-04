@@ -1,0 +1,5 @@
+# Interface definition for thorn nuX_WeakRates
+
+IMPLEMENTS: nuX_WeakRates
+
+INCLUDES HEADER: nuX_weakrates.hxx IN nuX_weakrates.hxx

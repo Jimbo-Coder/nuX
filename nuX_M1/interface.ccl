@@ -11,6 +11,7 @@ USES INCLUDE HEADER: roots.hxx
 USES INCLUDE HEADER: m1_opacities.hpp
 USES INCLUDE HEADER: avg_baryon_mass.hpp
 USES INCLUDE HEADER: nuX_fakerates.hxx
+USES INCLUDE HEADER: nuX_weakrates.hxx
 
 # === External functions ===
 
@@ -23,6 +24,9 @@ USES FUNCTION QueryProlongating
 
 CCTK_REAL FUNCTION ODESolvers_GetStepDeltaTime()
 USES FUNCTION ODESolvers_GetStepDeltaTime
+
+CCTK_INT FUNCTION ODESolvers_InPreImplicitStage()
+USES FUNCTION ODESolvers_InPreImplicitStage
 
 
 # === Public grid functions ===

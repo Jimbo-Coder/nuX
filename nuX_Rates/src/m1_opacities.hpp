@@ -1111,7 +1111,7 @@ M1Opacities ComputeM1OpacitiesGenericFormalism(
     else
     {
         s_beta[id_nue]  = temp * five;
-        s_beta[id_anue] = temp * eta_e * five_sixths;
+        s_beta[id_anue] = temp * (-eta_e) * five_sixths;
     }
 
     for (int idx = 0; idx < total_num_species; ++idx)
@@ -1354,7 +1354,7 @@ M1OpacitiesNonThermalSeparated ComputeM1OpacitiesGenericFormalismNonThermalSepar
     else
     {
         s_beta[id_nue]  = temp * five;
-        s_beta[id_anue] = temp * eta_e * five_sixths;
+        s_beta[id_anue] = temp * (-eta_e) * five_sixths;
     }
 
     for (int idx = 0; idx < total_num_species; ++idx)
