@@ -18,7 +18,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <sstream>
+#include <cmath>
 
 #include "cctk.h"
 #include "cctk_Arguments.h"
@@ -26,37 +26,26 @@
 #include "cctk_Parameters.h"
 
 #include "nuX_fakerates.hxx"
-#include "nuX_utils.hxx"
-#include "setup_eos.hxx"
 
 namespace nuX_M1 {
 using namespace std;
 using namespace Loop;
 using namespace nuX_FakeRates;
-using namespace nuX_Utils;
-using namespace EOSX;
 
 #ifndef MAX_GROUPSPECIES
 #define MAX_GROUPSPECIES 3
 #endif
 
-extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
-  DECLARE_CCTK_ARGUMENTS_nuX_M1_CalcFakeOpacity;
+extern "C" void nuX_M1_CalcOpacityFakeRates(CCTK_ARGUMENTS) {
+  DECLARE_CCTK_ARGUMENTS_nuX_M1_CalcOpacityFakeRates;
   DECLARE_CCTK_PARAMETERS;
 
   if (verbose) {
-    CCTK_INFO("nuX_M1_CalcFakeOpacity");
+    CCTK_INFO("nuX_M1_CalcOpacityFakeRates");
   }
 
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
-  const GF3D2layout layout_vc(cctkGH, {0, 0, 0});
-  const GF3D2<const CCTK_REAL> gf_gxx(layout_vc, gxx);
-  const GF3D2<const CCTK_REAL> gf_gxy(layout_vc, gxy);
-  const GF3D2<const CCTK_REAL> gf_gxz(layout_vc, gxz);
-  const GF3D2<const CCTK_REAL> gf_gyy(layout_vc, gyy);
-  const GF3D2<const CCTK_REAL> gf_gyz(layout_vc, gyz);
-  const GF3D2<const CCTK_REAL> gf_gzz(layout_vc, gzz);
 
   // Opacity trapping is a macro-step decision. ODESolvers temporarily changes
   // CCTK_DELTA_TIME for diagonal implicit source solves, so use the saved step dt.
@@ -90,50 +79,18 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
         // initialization
 
         CCTK_REAL rhoL = rho[ijk];
-        CCTK_REAL tempL = temperature[ijk];
-        CCTK_REAL yeL = Ye[ijk];
-        CCTK_REAL nb_nr =
-            rhoL * nuX_dens_conv / (particle_mass * kBS_MeVtog); // CU to nm^-3
-        CCTK_REAL nbL = nb_nr / nuX_ndens_conv;
-        M1Opacities coeffs = myfakerates->ComputeFakeOpacities(rhoL);
+        const auto coeffs = myfakerates->ComputeFakeOpacities(rhoL);
 
-        // Convert M1 Data to nurates
-        CCTK_REAL const gxx_cc = tensor::interp_v2c(gf_gxx, p);
-        CCTK_REAL const gxy_cc = tensor::interp_v2c(gf_gxy, p);
-        CCTK_REAL const gxz_cc = tensor::interp_v2c(gf_gxz, p);
-        CCTK_REAL const gyy_cc = tensor::interp_v2c(gf_gyy, p);
-        CCTK_REAL const gyz_cc = tensor::interp_v2c(gf_gyz, p);
-        CCTK_REAL const gzz_cc = tensor::interp_v2c(gf_gzz, p);
-        CCTK_REAL volformL = sqrt(nuX_Utils::metric::spatial_det(
-            gxx_cc, gxy_cc, gxz_cc, gyy_cc, gyz_cc, gzz_cc));
-        CCTK_REAL nudens_0[4],
-            nudens_1[4]; // force this to be 4 b/c nurates expects 4
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
-          const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          const CCTK_REAL in_fac = (ig == 2 && ng == 3) ? 0.25 : 1.0;
-
-          nudens_0[ig] = in_fac * rnnu[i4D] / volformL;
-          nudens_1[ig] = in_fac * rJ[i4D] / volformL;
-
-          // Fill data for anti-heavy neutrinos if only 3 species are evolved.
-          if (ig == 2 && ng == 3) {
-            nudens_0[3] = in_fac * rnnu[i4D] / volformL;
-            nudens_1[3] = in_fac * rJ[i4D] / volformL;
-          }
-        }
-        // Convert emissivities, opacities from nurates
-        CCTK_REAL kappa_0_loc[MAX_GROUPSPECIES], kappa_1_loc[MAX_GROUPSPECIES];
+        // Copy FakeRates emissivities and opacities.
+        CCTK_REAL kappa_1_loc[MAX_GROUPSPECIES];
         CCTK_REAL abs_0_loc[MAX_GROUPSPECIES], abs_1_loc[MAX_GROUPSPECIES];
-        CCTK_REAL scat_0_loc[MAX_GROUPSPECIES], scat_1_loc[MAX_GROUPSPECIES];
+        CCTK_REAL scat_1_loc[MAX_GROUPSPECIES];
         CCTK_REAL eta_0_loc[MAX_GROUPSPECIES], eta_1_loc[MAX_GROUPSPECIES];
 
         for (int ig = 0; ig < ngroups * nspecies; ++ig) {
-          const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           abs_0_loc[ig] = coeffs.kappa_0_a[ig];
           abs_1_loc[ig] = coeffs.kappa_a[ig];
-          scat_0_loc[ig] = 0.0;
           scat_1_loc[ig] = coeffs.kappa_s[ig];
-          kappa_0_loc[ig] = abs_0_loc[ig];
           kappa_1_loc[ig] = abs_1_loc[ig];
 
           eta_0_loc[ig] = coeffs.eta_0[ig];
@@ -141,8 +98,7 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
         }
 
         // An effective optical depth used to decide whether to compute
-        // the black body function for neutrinos assuming neutrino trapping
-        // or at a fixed temperature and Ye
+        // the equilibrium state for trapped or optically thin neutrinos
         CCTK_REAL const tau = min(sqrt(abs_1_loc[0] * kappa_1_loc[0]),
                                   sqrt(abs_1_loc[1] * kappa_1_loc[1])) *
                               dt;
@@ -151,23 +107,6 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
         CCTK_REAL nudens_0_trap[MAX_GROUPSPECIES],
             nudens_1_trap[MAX_GROUPSPECIES];
         if (opacity_tau_trap >= 0 && tau > opacity_tau_trap) {
-
-          CCTK_REAL epsL = eps[ijk];
-          CCTK_REAL etot = epsL;
-          for (int ig = 0; ig < ngroups * nspecies; ++ig) {
-            etot += rJ[layout_cc.linear(p.i, p.j, p.k, ig)];
-          }
-
-          // TODO: Change BetaEq call to accept more lepton fractions if 4
-          // species are evolved
-          CCTK_REAL ylep_e = yeL - (nudens_0[0] - nudens_0[1]) / nbL;
-          CCTK_REAL temp_trap = tempL;
-          CCTK_REAL ye_trap = ylep_e;
-
-          CCTK_REAL mu_p_trap, mu_n_trap, mu_e_trap;
-          // eos_3p->mu_pne_from_rho_temp_ye(rhoL, temp_trap, ye_trap,
-          // mu_p_trap, mu_n_trap, mu_e_trap);
-
           myfakerates->FakeNeutrinoDens(
               rhoL, nudens_0_trap[0], nudens_0_trap[1], nudens_0_trap[2],
               nudens_1_trap[0], nudens_1_trap[1], nudens_1_trap[2]);
@@ -188,8 +127,7 @@ extern "C" void nuX_M1_CalcFakeOpacity(CCTK_ARGUMENTS) {
           assert(isfinite(nudens_1_trap[1]));
           assert(isfinite(nudens_1_trap[2]));
         }
-        // Compute the neutrino black body function assuming fixed temperature
-        // and Y_e
+        // Compute the optically thin FakeRates equilibrium state.
         CCTK_REAL nudens_0_thin[3], nudens_1_thin[3];
         myfakerates->FakeNeutrinoDens(rhoL, nudens_0_thin[0], nudens_0_thin[1],
                                       nudens_0_thin[2], nudens_1_thin[0],

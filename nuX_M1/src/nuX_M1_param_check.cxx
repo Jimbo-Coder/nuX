@@ -38,13 +38,18 @@ extern "C" void nuX_M1_ParamCheck(CCTK_ARGUMENTS) {
       CCTK_PARAMWARN("nuX_M1 requires the nuX_FakeRates thorn when "
                      "nuX_M1::rates_lib is FakeRates");
     }
+    if (set_to_equilibrium || reset_to_equilibrium) {
+      CCTK_PARAMWARN("nuX_M1::set_to_equilibrium and "
+                     "nuX_M1::reset_to_equilibrium are not supported with "
+                     "nuX_M1::rates_lib=FakeRates");
+    }
   } else if (CCTK_Equals(rates_lib, "WeakRates")) {
     if (!CCTK_IsThornActive("nuX_WeakRates")) {
       CCTK_PARAMWARN("nuX_M1 requires the nuX_WeakRates thorn when "
                      "nuX_M1::rates_lib is WeakRates");
     }
-  } else if (!CCTK_IsThornActive("nuX_Rates")) {
-    CCTK_PARAMWARN("nuX_M1 requires the nuX_Rates thorn when "
+  } else if (!CCTK_IsThornActive("nuX_NuRates")) {
+    CCTK_PARAMWARN("nuX_M1 requires the nuX_NuRates thorn when "
                    "nuX_M1::rates_lib is NuRates");
   }
 }

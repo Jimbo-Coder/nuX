@@ -8,11 +8,10 @@
 #include "cctk_Functions.h"
 #include "cctk_Parameters.h"
 
-#include "nuX_M1_macro.hxx"
 #include "nuX_M1_closure.hxx"
+#include "nuX_baryon_mass.hxx"
 #include "nuX_utils.hxx"
 #include "nuX_M1_sources.hxx"
-#include "avg_baryon_mass.hpp"
 
 namespace nuX_M1 {
 
@@ -71,7 +70,7 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
                                           fidu_velx, fidu_vely, fidu_velz);
 
   // particle_mass is in MeV
-  CCTK_REAL const mb = AverageBaryonMass(particle_mass);
+  CCTK_REAL const mb = nuX_Utils::AverageBaryonMass(particle_mass);
 
   if (verbose) {
     CCTK_INFO("nuX_M1_CalcUpdate 1");
@@ -137,32 +136,6 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
           assert(isfinite(rFy[i4D]));
           assert(isfinite(rFz[i4D]));
 
-#if (NUX_M1_SRC_METHOD == NUX_M1_SRC_EXPL)
-          CCTK_REAL E = rE[i4D];
-          tensor::generic<CCTK_REAL, 4, 1> F_d;
-          pack_F_d(betax_ijk, betay_ijk, betaz_ijk, rFx[i4D], rFy[i4D],
-                   rFz[i4D], &F_d);
-          tensor::generic<CCTK_REAL, 4, 1> F_u, S_d, tS_d;
-          tensor::contract(g_uu, F_d, &F_u);
-
-          CCTK_REAL J = rJ[i4D];
-          CCTK_REAL Gamma =
-              compute_Gamma(W_ijk, v_u, J, E, F_d, rad_E_floor, rad_eps);
-          tensor::generic<CCTK_REAL, 4, 1> H_d;
-          pack_H_d(rHt[i4D], rHx[i4D], rHy[i4D], rHz[i4D], &H_d);
-
-          calc_rad_sources(eta_1[i4D] * volform_ijk, abs_1[i4D], scat_1[i4D],
-                           u_d, J, H_d, &S_d);
-          source_update_delta_E[i4D] =
-              dt * calc_rE_source(alp_ijk, n_u, S_d);
-          calc_rF_source(alp_ijk, gamma_ud, S_d, &tS_d);
-          source_update_delta_Fx[i4D] = dt * tS_d(1);
-          source_update_delta_Fy[i4D] = dt * tS_d(2);
-          source_update_delta_Fz[i4D] = dt * tS_d(3);
-          source_update_delta_N[i4D] =
-              dt * alp_ijk *
-              (volform_ijk * eta_0[i4D] - abs_0[i4D] * rN[i4D] / Gamma);
-#else
           CCTK_REAL Estar = rE[i4D];
           tensor::generic<CCTK_REAL, 4, 1> Fstar_d;
           pack_F_d(betax_ijk, betay_ijk, betaz_ijk, rFx[i4D], rFy[i4D],
@@ -219,12 +192,7 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
 
           CCTK_REAL const H2 = tensor::dot(g_uu, Hnew_d, Hnew_d);
 
-#if (NUX_M1_SRC_METHOD == NUX_M1_SRC_BOOST)
-          CCTK_REAL const xi = (Jnew > rad_E_floor ? sqrt(H2) / Jnew : 0.0);
-          chi[i4D] = eval_closure(closure_fun, xi);
-#else
           chi[i4D] = CCTK_REAL(1.0 / 3.0);
-#endif
 
           CCTK_REAL const dthick = 3.0 * (1.0 - chi[i4D]) / 2.0;
           CCTK_REAL const dthin = 1.0 - dthick;
@@ -242,7 +210,6 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
           calc_H_from_rT(rT_dd, n_u, gamma_ud, &Fnew_d);
           apply_floor(g_uu, &Enew, &Fnew_d, rad_E_floor, rad_eps);
 
-#if (NUX_M1_SRC_METHOD == NUX_M1_SRC_IMPL)
           SourceUpdateContext source_ctx(
               cctkGH, p.i, p.j, p.k, ig, closure_epsilon, closure_maxiter,
               use_fallback != 0, dt, alp_ijk, g_dd, g_uu, n_d, n_u, gamma_ud,
@@ -278,7 +245,6 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
           assemble_rT(n_d, Enew, Fnew_d, P_dd, &T_dd);
           Jnew = calc_J_from_rT(T_dd, u_u);
           assert(isfinite(Jnew));
-#endif
 
           source_update_delta_E[i4D] = Enew - Estar;
           source_update_delta_Fx[i4D] = Fnew_d(1) - Fstar_d(1);
@@ -298,8 +264,6 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
             source_update_delta_N[i4D] =
                 (nueave[i4D] > 0 ? (Gamma * Jnew) / nueave[i4D] - Nstar : 0.0);
           }
-#endif
-
           assert(isfinite(source_update_delta_E[i4D]));
           assert(isfinite(source_update_delta_Fx[i4D]));
           assert(isfinite(source_update_delta_Fy[i4D]));

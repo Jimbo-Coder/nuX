@@ -14,7 +14,6 @@
 #include <simd.hxx>
 
 #include "nuX_M1_closure.hxx"
-#include "nuX_M1_macro.hxx"
 #include "nuX_utils.hxx"
 #include "aster_utils.hxx"
 

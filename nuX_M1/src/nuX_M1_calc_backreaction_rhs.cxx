@@ -6,7 +6,7 @@
 #include "cctk_Arguments.h"
 #include "cctk_Parameters.h"
 
-#include "avg_baryon_mass.hpp"
+#include "nuX_baryon_mass.hxx"
 
 namespace nuX_M1 {
 
@@ -25,7 +25,7 @@ extern "C" void nuX_M1_CalcBackreactionRHS(CCTK_ARGUMENTS) {
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
 
-  const CCTK_REAL mb = AverageBaryonMass(particle_mass);
+  const CCTK_REAL mb = nuX_Utils::AverageBaryonMass(particle_mass);
 
   // Keep the equal-and-opposite matter source in the implicit partition.  In
   // particular, the first (zero-diagonal) stage is used by later rows of both

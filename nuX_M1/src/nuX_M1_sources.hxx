@@ -7,7 +7,6 @@
 #include <loop_device.hxx>
 
 #include "nuX_M1_closure.hxx"
-#include "nuX_M1_macro.hxx"
 #include "nuX_utils.hxx"
 
 #include <cctk_Parameters.h>
@@ -149,7 +148,7 @@ __source_jacobian_low_level(double *qpre, double Fup[4], double F2, double chi,
   const double vx = vdown[1];
   const double vy = vdown[2];
   const double vz = vdown[3];
-  const double W2 = SQ(W);
+  const double W2 = (W) * (W);
   const double W3 = W2 * W;
 
   const double vdotF =
@@ -157,7 +156,7 @@ __source_jacobian_low_level(double *qpre, double Fup[4], double F2, double chi,
   const double normF = sqrt(F2);
   const double inormF = (normF > 0 ? 1 / normF : 0);
   const double vdothatf = vdotF * inormF;
-  const double vdothatf2 = SQ(vdothatf);
+  const double vdothatf2 = (vdothatf) * (vdothatf);
   const double hatfx = qpre[1] * inormF; // hatf_i
   const double hatfy = qpre[2] * inormF;
   const double hatfz = qpre[3] * inormF;
@@ -435,7 +434,8 @@ source_uses_thick_limit(CCTK_REAL const cdt, CCTK_REAL const kabs,
                         CCTK_REAL const kscat,
                         CCTK_REAL const source_thick_limit) {
   return source_thick_limit > CCTK_REAL(0) &&
-         SQ(cdt) * (kabs * (kabs + kscat)) > SQ(source_thick_limit);
+         (cdt) * (cdt) * (kabs * (kabs + kscat)) >
+             (source_thick_limit) * (source_thick_limit);
 }
 
 CCTK_HOST CCTK_DEVICE CCTK_ATTRIBUTE_ALWAYS_INLINE inline bool

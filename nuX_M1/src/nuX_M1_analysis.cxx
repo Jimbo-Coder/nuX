@@ -8,16 +8,14 @@
 #include "cctk_Arguments.h"
 #include "cctk_Parameters.h"
 
-#include "nuX_M1_macro.hxx"
+#include "nuX_baryon_mass.hxx"
 #include "nuX_utils.hxx"
-#include "avg_baryon_mass.hpp"
 
 namespace nuX_M1 {
 
 using namespace std;
 using namespace Loop;
 using namespace nuX_Utils;
-using namespace nuX_Rates;
 
 extern "C" void nuX_M1_Analysis(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_M1_Analysis;
@@ -28,7 +26,7 @@ extern "C" void nuX_M1_Analysis(CCTK_ARGUMENTS) {
   }
 
   // particle_mass is in MeV
-  CCTK_REAL const mb = AverageBaryonMass(particle_mass);
+  CCTK_REAL const mb = nuX_Utils::AverageBaryonMass(particle_mass);
 
   assert(nspecies == 3);
   assert(ngroups == 1);

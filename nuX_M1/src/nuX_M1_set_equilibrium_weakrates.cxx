@@ -8,25 +8,25 @@
 #include "cctk_Arguments.h"
 #include "cctk_Parameters.h"
 
-#include "m1_opacities.hpp"
 #include "nuX_M1_closure.hxx"
+#include "nuX_rate_units.hxx"
 #include "nuX_utils.hxx"
+#include "nuX_weakrates.hxx"
 #include "setup_eos.hxx"
 
 namespace nuX_M1 {
 
 using namespace std;
 using namespace Loop;
-using namespace nuX_Rates;
 using namespace nuX_Utils;
 using namespace EOSX;
 
-extern "C" void nuX_M1_SetToEquilibrium(CCTK_ARGUMENTS) {
-  DECLARE_CCTK_ARGUMENTS_nuX_M1_SetToEquilibrium;
+extern "C" void nuX_M1_SetToEquilibriumWeakRates(CCTK_ARGUMENTS) {
+  DECLARE_CCTK_ARGUMENTS_nuX_M1_SetToEquilibriumWeakRates;
   DECLARE_CCTK_PARAMETERS;
 
   if (verbose)
-    CCTK_INFO("nuX_M1_SetToEquilibrium");
+    CCTK_INFO("nuX_M1_SetToEquilibriumWeakRates");
 
   assert(nspecies == 3);
   assert(ngroups == 1);
@@ -43,12 +43,15 @@ extern "C" void nuX_M1_SetToEquilibrium(CCTK_ARGUMENTS) {
                                           fidu_velx, fidu_vely, fidu_velz);
 
   auto eos_3p = global_eos_3p_tab3d;
+  auto weakrates = nuX_WeakRates::global_weakrates;
 
   grid.loop_all_device<1, 1, 1>(
       grid.nghostzones,
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         const int ijk = layout_cc.linear(p.i, p.j, p.k);
-        const CCTK_REAL rho_cgs = rho[ijk] * nuX_dens_conv * 1.0e21;
+        const CCTK_REAL rho_cgs =
+            rho[ijk] * rate_units::code_density_to_g_nm3 /
+            rate_units::per_cm3_to_per_nm3;
         if (nuX_m1_mask[ijk] || rho_cgs < equilibrium_rho_min)
           return;
 
@@ -56,10 +59,20 @@ extern "C" void nuX_M1_SetToEquilibrium(CCTK_ARGUMENTS) {
         eos_3p->mu_pne_from_rho_temp_ye(rho[ijk], temperature[ijk], Ye[ijk],
                                         mu_p, mu_n, mu_e);
 
+        const nuX_WeakRates::EOSState weak_eos = {
+            rho_cgs, temperature[ijk], Ye[ijk], particle_mass,
+            mu_e, mu_p, mu_n, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        const auto densities = weakrates->equilibrium_densities(weak_eos);
+
         CCTK_REAL nudens_0[3], nudens_1[3];
-        NeutrinoDens(mu_n, mu_p, mu_e, temperature[ijk], nudens_0[0],
-                     nudens_0[1], nudens_0[2], nudens_1[0], nudens_1[1],
-                     nudens_1[2]);
+        for (int ig = 0; ig < nspecies * ngroups; ++ig) {
+          nudens_0[ig] =
+              densities.number[ig] * rate_units::per_cm3_to_per_nm3 /
+              rate_units::fm3_to_nm3;
+          nudens_1[ig] =
+              densities.energy[ig] * rate_units::per_cm3_to_per_nm3 /
+              rate_units::code_energy_density_to_mev_nm3;
+        }
 
         tensor::metric<4> g_dd;
         tensor::inv_metric<4> g_uu;

@@ -66,6 +66,7 @@ extern "C" void nuX_M1_CalcClosure(CCTK_ARGUMENTS) {
             rPyz[i4D] = 0;
             rPzz[i4D] = 0;
             rnnu[i4D] = 0;
+            chi[i4D] = 0;
           }
           return;
         }

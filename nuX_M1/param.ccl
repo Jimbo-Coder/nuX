@@ -231,7 +231,7 @@ BOOLEAN verbose "Debug output" STEERABLE=always
 
 KEYWORD rates_lib "Reaction-rate library used by nuX_M1" STEERABLE=ALWAYS
 {
-    "NuRates"   :: "Use the nuX_Rates microphysics library"
+    "NuRates"   :: "Use the nuX_NuRates microphysics library"
     "WeakRates" :: "Use the nuX_WeakRates analytic library"
     "FakeRates" :: "Use the nuX_FakeRates test library"
 } "NuRates"

@@ -1,6 +1,6 @@
 # Configuration definitions for thorn nuX_M1
 
-REQUIRES EOSX Loop HDF5
+REQUIRES EOSX Loop
 
 PROVIDES nuX_M1
 {

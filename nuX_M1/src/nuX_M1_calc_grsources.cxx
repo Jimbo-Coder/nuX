@@ -4,7 +4,6 @@
 #include "cctk_Parameters.h"
 
 #include "nuX_M1_closure.hxx"
-#include "nuX_M1_macro.hxx"
 #include "aster_utils.hxx"
 #include "nuX_utils.hxx"
 

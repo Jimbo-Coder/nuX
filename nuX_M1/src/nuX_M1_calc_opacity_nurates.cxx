@@ -10,9 +10,7 @@
 #include "cctk_Parameters.h"
 
 #include "m1_opacities.hpp"
-#include "nuX_M1_macro.hxx"
 #include "nuX_M1_weak_equil.hxx"
-#include "nuX_weakrates.hxx"
 #include "nuX_utils.hxx"
 #include "setup_eos.hxx"
 
@@ -20,7 +18,7 @@ namespace nuX_M1 {
 // using namespace thc;
 using namespace std;
 using namespace Loop;
-using namespace nuX_Rates;
+using namespace nuX_NuRates;
 using namespace nuX_Utils;
 using namespace EOSX;
 
@@ -34,12 +32,12 @@ rate_is_valid(CCTK_REAL const value, CCTK_REAL const max_abs) {
          (max_abs < CCTK_REAL(0) || value <= max_abs);
 }
 
-extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
-  DECLARE_CCTK_ARGUMENTS_nuX_M1_CalcOpacity;
+extern "C" void nuX_M1_CalcOpacityNuRates(CCTK_ARGUMENTS) {
+  DECLARE_CCTK_ARGUMENTS_nuX_M1_CalcOpacityNuRates;
   DECLARE_CCTK_PARAMETERS;
 
   if (verbose) {
-    CCTK_INFO("nuX_M1_CalcOpacity");
+    CCTK_INFO("nuX_M1_CalcOpacityNuRates");
   }
 
   const GridDescBaseDevice grid(cctkGH);
@@ -57,8 +55,6 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
   const CCTK_REAL step_delta_time = ODESolvers_GetStepDeltaTime();
   CCTK_REAL const dt =
       step_delta_time > 0.0 ? step_delta_time : CCTK_DELTA_TIME;
-
-  const bool use_weakrates = CCTK_Equals(rates_lib, "WeakRates");
 
   // NuRates Setup
   // Init structs for nurates calls
@@ -86,7 +82,6 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
 
   // Setup EOS
   auto eos_3p = global_eos_3p_tab3d;
-  auto weakrates = nuX_WeakRates::global_weakrates;
 
   // Setup Printer
   // thc::Printer::start(
@@ -195,69 +190,22 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
           gpu_quad.points[idx] = my_quad.points[idx];
         }
 
-        M1Opacities coeffs = {};
-        if (use_weakrates) {
-          using tabulated_eos = EOSX::eos_3p_tabulated3d;
-          const CCTK_REAL lr =
-              log(fmin(fmax(rhoL, eos_3p->rgrho.min), eos_3p->rgrho.max));
-          const CCTK_REAL lt =
-              log(fmin(fmax(tempL, eos_3p->rgtemp.min), eos_3p->rgtemp.max));
-          const auto eos_state =
-              eos_3p->interptable
-                  ->interpolate<tabulated_eos::EV::MU_E,
-                                tabulated_eos::EV::MU_P,
-                                tabulated_eos::EV::MU_N,
-                                tabulated_eos::EV::XA,
-                                tabulated_eos::EV::XH,
-                                tabulated_eos::EV::XN,
-                                tabulated_eos::EV::XP,
-                                tabulated_eos::EV::ABAR,
-                                tabulated_eos::EV::ZBAR>(lr, lt, yeL);
-          const nuX_WeakRates::EOSState weak_eos = {
-              rhoL * nuX_dens_conv * 1.0e21,
-              tempL,
-              yeL,
-              particle_mass,
-              eos_state[0],
-              eos_state[1],
-              eos_state[2],
-              eos_state[3],
-              eos_state[4],
-              eos_state[5],
-              eos_state[6],
-              eos_state[7],
-              eos_state[8]};
-          const auto weak_coeffs = weakrates->compute_rates(weak_eos);
-          for (int ig = 0; ig < ng; ++ig) {
-            // WeakRates returns cgs coefficients. Convert them to the native
-            // NuRates units consumed by the common M1 post-processing below.
-            coeffs.eta_0[ig] = weak_coeffs.eta_0[ig] * 1.0e-21;
-            coeffs.eta[ig] = weak_coeffs.eta[ig] * 1.0e-21;
-            coeffs.kappa_0_a[ig] = weak_coeffs.kappa_0_a[ig] * 1.0e-7;
-            coeffs.kappa_a[ig] = weak_coeffs.kappa_a[ig] * 1.0e-7;
-            coeffs.kappa_s[ig] = weak_coeffs.kappa_s[ig] * 1.0e-7;
-          }
-        } else {
-          coeffs = ComputeM1Opacities(&gpu_quad, &gpu_quad,
-                                      &my_grey_opacity_params);
-        }
+        M1Opacities coeffs = ComputeM1Opacities(
+            &gpu_quad, &gpu_quad, &my_grey_opacity_params);
 
         // Convert emissivities, opacities from nurates
-        CCTK_REAL kappa_0_loc[MAX_GROUPSPECIES], kappa_1_loc[MAX_GROUPSPECIES];
+        CCTK_REAL kappa_1_loc[MAX_GROUPSPECIES];
         CCTK_REAL abs_0_loc[MAX_GROUPSPECIES], abs_1_loc[MAX_GROUPSPECIES];
-        CCTK_REAL scat_0_loc[MAX_GROUPSPECIES], scat_1_loc[MAX_GROUPSPECIES];
+        CCTK_REAL scat_1_loc[MAX_GROUPSPECIES];
         CCTK_REAL eta_0_loc[MAX_GROUPSPECIES], eta_1_loc[MAX_GROUPSPECIES];
 
         for (int ig = 0; ig < ngroups * nspecies; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          const CCTK_REAL out_fac =
-              (!use_weakrates && ig == 2 && ng == 3) ? 4.0 : 1.0;
+          const CCTK_REAL out_fac = (ig == 2 && ng == 3) ? 4.0 : 1.0;
 
           abs_0_loc[ig] = coeffs.kappa_0_a[ig] * nuX_length_conv;
           abs_1_loc[ig] = coeffs.kappa_a[ig] * nuX_length_conv;
-          scat_0_loc[ig] = 0.0;
           scat_1_loc[ig] = coeffs.kappa_s[ig] * nuX_length_conv;
-          kappa_0_loc[ig] = abs_0_loc[ig] + scat_0_loc[ig];
           kappa_1_loc[ig] = abs_1_loc[ig] + scat_1_loc[ig];
 
           eta_0_loc[ig] =
@@ -272,9 +220,7 @@ extern "C" void nuX_M1_CalcOpacity(CCTK_ARGUMENTS) {
               !rate_is_valid(eta_1_loc[ig], opacity_rate_max)) {
             abs_0_loc[ig] = 0.0;
             abs_1_loc[ig] = 0.0;
-            scat_0_loc[ig] = 0.0;
             scat_1_loc[ig] = 0.0;
-            kappa_0_loc[ig] = 0.0;
             kappa_1_loc[ig] = 0.0;
             eta_0_loc[ig] = 0.0;
             eta_1_loc[ig] = 0.0;

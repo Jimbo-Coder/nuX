@@ -13,7 +13,6 @@
 #include "cctk_Parameters.h"
 
 #include "nuX_utils.hxx"
-#include "nuX_M1_macro.hxx"
 
 namespace nuX_M1 {
 
@@ -315,7 +314,8 @@ CCTK_HOST CCTK_DEVICE CCTK_ATTRIBUTE_ALWAYS_INLINE inline CCTK_REAL
 flux_factor(tensor::inv_metric<4> const &g_uu, CCTK_REAL const J,
             tensor::generic<CCTK_REAL, 4, 1> const &H_d,
             CCTK_REAL rad_E_floor) {
-  CCTK_REAL xi = (J > rad_E_floor ? tensor::dot(g_uu, H_d, H_d) / SQ(J) : 0);
+  CCTK_REAL xi =
+      (J > rad_E_floor ? tensor::dot(g_uu, H_d, H_d) / ((J) * (J)) : 0);
   return max(0.0, min(xi, 1.0));
 }
 
@@ -548,7 +548,7 @@ zFunction(double xi, void *params) {
   calc_H_from_rT(rT_dd, p->u_u, p->proj_ud, &H_d);
 
   CCTK_REAL const H2 = tensor::dot(p->g_uu, H_d, H_d);
-  return SQ(J * xi) - H2;
+  return (J * xi) * (J * xi) - H2;
 }
 
 // Computes the closure in the lab frame with a rootfinding procedure

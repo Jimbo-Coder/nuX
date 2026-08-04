@@ -7,7 +7,6 @@
 #include "cctk_Parameters.h"
 
 #include "nuX_M1_closure.hxx"
-#include "nuX_M1_macro.hxx"
 #include "nuX_utils.hxx"
 
 namespace nuX_M1 {
