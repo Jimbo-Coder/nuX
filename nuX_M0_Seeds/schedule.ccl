@@ -1,0 +1,28 @@
+# Schedule definitions for thorn nuX_M0_Seeds
+#
+# nuX_M0_Seeds - initial data provider for various tests with M0.
+
+if (initialize_asterx_vector_potential) {
+  SCHEDULE nuX_M0_Seeds_InitVectorPotential IN HydroBaseX_PostInitial {
+    LANG: C
+    WRITES: AsterX::Avec_x(everywhere)
+    WRITES: AsterX::Avec_y(everywhere)
+    WRITES: AsterX::Avec_z(everywhere)
+  } "Initialize the magnetic vector potential for M0 tests"
+}
+
+if (CCTK_Equals(nuX_test_case, "adv_velocity_jump")) {
+  SCHEDULE nuX_M0_Seeds_SetupHydroTest_adv_velocity_jump IN HydroBaseX_InitialData AFTER HydroBaseX_initial_data {
+    LANG: C
+    WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
+    WRITES: HydroBaseX::Ye(everywhere)
+  } "Setup advective step hydro initial conditions for M0 tests."
+}
+
+if ((CCTK_Equals(nuX_test_case, "diff_limit_square")) || (CCTK_EQUALS(nuX_test_case, "diff_limit_gaussian"))) {
+  SCHEDULE nuX_M0_Seeds_SetupHydroTest_diff_limit_test IN HydroBaseX_InitialData AFTER HydroBaseX_initial_data {
+    LANG: C
+    WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
+    WRITES: HydroBaseX::Ye(everywhere)
+  } "Setup diffusion-limit hydro initial conditions for M0 tests."
+}

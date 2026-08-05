@@ -14,8 +14,8 @@ ActiveThorns = "
   TmunuBaseX
   nuX_FakeRates
   nuX_M1
-  nuX_M1Seeds
-  nuX_Seeds
+  nuX_Base
+  nuX_M1_Seeds
   nuX_Utils
 "
 
@@ -129,10 +129,10 @@ nuX_M1::reset_to_equilibrium = "no"
 nuX_M1::source_epsabs = 1e-8
 nuX_M1::verbose = "no"
 
-nuX_Seeds::nuX_test_case = "diff_limit_gaussian"
-nuX_Seeds::initialize_asterx_vector_potential = yes
-nuX_Seeds::static_velz = 0.5
-nuX_Seeds::verbose = "no"
+nuX_M1_Seeds::nuX_test_case = "diff_limit_gaussian"
+nuX_M1_Seeds::initialize_asterx_vector_potential = yes
+nuX_M1_Seeds::static_velz = 0.5
+nuX_M1_Seeds::verbose = "no"
 
 IO::out_dir = $parfile
 IO::out_every = 4
@@ -140,4 +140,4 @@ IO::parfile_write = no
 CarpetX::out_metadata = no
 CarpetX::out_norm_vars = " "
 CarpetX::out_norm_omit_unstable = yes
-CarpetX::out_tsv_vars = "nuX_M1::rE"
+CarpetX::out_tsv_vars = "nuX_Base::rE"

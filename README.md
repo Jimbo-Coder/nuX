@@ -22,6 +22,7 @@
 
 ## Available Modules
 
+- `nuX_Base` — Shared radiation interface variables (`rN`, `rE`, `rF`, `rP`) used by transport and seed thorns
 - `nuX_M1` — Core M1 evolution: fluxes, closures, source terms, analysis/diagnostics, stress–energy output
 - `nuX_M0` — GPU ray-by-ray M0 transport and matter coupling
 - `nuX_LeakageBase` — Rate-library-independent leakage and optical depths
@@ -29,8 +30,8 @@
 - `nuX_WeakRates` — Independent GPU-capable WeakRates implementation for transport and THC_M1 cross-validation
 - `nuX_FakeRates` — Lightweight fake/constant rates for testing
 - `nuX_NuRatesToy` — Toy module for testing
-- `nuX_Seeds` — Shared hydrodynamic test initial data
-- `nuX_M1Seeds` — M1-specific radiation initial data and test boundaries
+- `nuX_M1_Seeds` — initial data provider for various tests with M1
+- `nuX_M0_Seeds` — initial data provider for various tests with M0
 - `nuX_Utils` — Tensor utilities, metric helpers, math wrappers
 
 ---

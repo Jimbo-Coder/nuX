@@ -6,6 +6,10 @@ EXTENDS KEYWORD initial_hydro "Hydro initial data"
     "nuX_M1" :: ""
 }
 
+SHARES: nuX_Base
+USES CCTK_INT ngroups
+USES CCTK_INT nspecies
+
 #USES INT hydro_excision
 #USES KEYWORD evolution_method
 
@@ -80,16 +84,6 @@ INT grsource_spatial_order "Finite-difference order for spacetime derivatives in
     2 :: "Second order; matches THC_M1"
     4 :: "Fourth order on cell-centered geometry"
 } 2
-
-INT ngroups "Number of radiation energy groups" STEERABLE=ALWAYS
-{
-    1 :: "Only 1 is supported at the moment"
-} 1
-
-INT nspecies "Number of radiation species" STEERABLE=ALWAYS
-{
-    3 :: "Only 3 is supported at the moment"
-} 3
 
 REAL rad_N_floor "Radiation number density floor" STEERABLE=ALWAYS
 {

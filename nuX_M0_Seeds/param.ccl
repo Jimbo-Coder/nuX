@@ -1,0 +1,68 @@
+# Parameter definitions for thorn nuX_M0_Seeds
+#
+# nuX_M0_Seeds - initial data provider for various tests with M0.
+
+RESTRICTED:
+
+KEYWORD nuX_test_case "Perform simple tests"
+{
+    "adv_velocity_jump"   :: "Advective across a velocity jump"
+    "diff_limit_square"   :: "Square pulse diffusion test"
+    "diff_limit_gaussian" :: "Gaussian packet diffusion test"
+    "none"                :: "No test is performed"
+} "none"
+
+BOOLEAN initialize_asterx_vector_potential "Initialize the AsterX vector potential to zero for radiation tests"
+{
+} "no"
+
+CCTK_REAL static_rho "Initial rest mass density"
+{
+    (0:) :: "Any positive number"
+} 1.0
+
+BOOLEAN profile_hydro_density "Use the radiation-test profile for the hydro density"
+{
+} "no"
+
+CCTK_REAL static_velx "Add a constant velocity in the initial data: x-component"
+{
+    (-1:1) :: "Any number that makes sense"
+} 0.0
+
+CCTK_REAL static_vely "Add a constant velocity in the initial data: y-component"
+{
+    (-1:1) :: "Any number that makes sense"
+} 0.0
+
+CCTK_REAL static_velz "Add a constant velocity in the initial data: z-component"
+{
+    (-1:1) :: "Any number that makes sense"
+} 0.0
+
+CCTK_REAL static_eps "Initial specific internal energy"
+{
+    (0:) :: "Any positive number"
+} 1.0e-2
+
+CCTK_REAL static_ye "Initial electron fraction"
+{
+    [0:1] :: "Any number between 0 and 1"
+} 0.5
+
+CCTK_REAL test_nvec[3] "Direction of propagation for the initial packet"
+{
+    * :: "The direction vector will be normalized; defaults to z-direction"
+} 0.0
+
+CCTK_REAL rho_atmosphere "floor density in the atmosphere"
+{
+  (0.0:*   :: "Positive"
+} 1e-9
+
+BOOLEAN verbose "Debug output" STEERABLE=always
+{
+} "no"
+
+SHARES: EOSX
+USES KEYWORD evolution_eos

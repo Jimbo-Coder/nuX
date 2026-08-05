@@ -15,7 +15,7 @@ ActiveThorns = "
   nuX_FakeRates
   nuX_LeakageBase
   nuX_M0
-  nuX_Seeds
+  nuX_M0_Seeds
   nuX_Utils
 "
 
@@ -124,14 +124,14 @@ nuX_M0::compute_every = 1
 nuX_M0::verbose = "no"
 nuX_M0::backreact = "no"
 
-nuX_Seeds::initialize_asterx_vector_potential = yes
-nuX_Seeds::nuX_test_case = "adv_velocity_jump"
-nuX_Seeds::static_eps = 1.0e-2
-nuX_Seeds::static_rho = 1.0
-nuX_Seeds::static_velz = 0.5
-nuX_Seeds::static_ye = 0.5
-nuX_Seeds::test_nvec = [0.0, 0.0, 1.0]
-nuX_Seeds::verbose = "no"
+nuX_M0_Seeds::initialize_asterx_vector_potential = yes
+nuX_M0_Seeds::nuX_test_case = "adv_velocity_jump"
+nuX_M0_Seeds::static_eps = 1.0e-2
+nuX_M0_Seeds::static_rho = 1.0
+nuX_M0_Seeds::static_velz = 0.5
+nuX_M0_Seeds::static_ye = 0.5
+nuX_M0_Seeds::test_nvec = [0.0, 0.0, 1.0]
+nuX_M0_Seeds::verbose = "no"
 
 IO::out_dir = $parfile
 IO::out_every = 16

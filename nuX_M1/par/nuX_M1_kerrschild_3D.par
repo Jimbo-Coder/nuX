@@ -16,8 +16,8 @@ ActiveThorns = "
    KerrSchildX
    nuX_FakeRates
    nuX_M1
-   nuX_M1Seeds
-   nuX_Seeds
+   nuX_Base
+   nuX_M1_Seeds
    nuX_Utils
    ODESolvers
    TimerReport
@@ -122,11 +122,11 @@ CarpetX::out_openpmd_vars = "
     ADMBaseX::lapse
     ADMBaseX::shift
     ADMBaseX::metric
-    nuX_M1::rN
-    nuX_M1::rE
+    nuX_Base::rN
+    nuX_Base::rE
     nuX_M1::nuX_m1_mask
-    nuX_M1::rF
-    nuX_M1::rP
+    nuX_Base::rF
+    nuX_Base::rP
     nuX_M1::chi
     nuX_M1::rnnu
     nuX_M1::rJ
@@ -219,11 +219,11 @@ nuX_M1::rates_lib            = "FakeRates"
 nuX_M1::verbose              = "no"
 
 # -----------------------------------------------------------------------------
-# nuX_Seeds
+# nuX_M1_Seeds
 # -----------------------------------------------------------------------------
-nuX_Seeds::verbose            = "yes"
-nuX_Seeds::nuX_test_case      = "kerrschild"
-nuX_Seeds::initialize_asterx_vector_potential = yes
-nuX_Seeds::kerr_beam_position = 3.25
-nuX_Seeds::kerr_beam_width    = 0.5
-nuX_Seeds::kerr_mask_radius   = 1.0
+nuX_M1_Seeds::verbose            = "yes"
+nuX_M1_Seeds::nuX_test_case      = "kerrschild"
+nuX_M1_Seeds::initialize_asterx_vector_potential = yes
+nuX_M1_Seeds::kerr_beam_position = 3.25
+nuX_M1_Seeds::kerr_beam_width    = 0.5
+nuX_M1_Seeds::kerr_mask_radius   = 1.0

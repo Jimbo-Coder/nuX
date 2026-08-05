@@ -1,0 +1,17 @@
+# Main make.code.defn file for thorn nuX_M1_Seeds
+
+# Source files in this directory
+SRCS = \
+nuX_seed_vector_potential.cxx \
+nuX_beam.cxx \
+nuX_equil.cxx \
+nuX_kerrschild.cxx \
+nuX_adv_velocity_jump.cxx \
+nuX_diff_limit.cxx \
+nuX_shadow.cxx \
+nuX_atmosphere.cxx \
+nuX_sphere.cxx
+
+
+#Subdirectories containing source files
+SUBDIRS =

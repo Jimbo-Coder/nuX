@@ -13,8 +13,8 @@ ActiveThorns = "
    IOUtil
    nuX_FakeRates
    nuX_M1
-   nuX_M1Seeds
-   nuX_Seeds
+   nuX_Base
+   nuX_M1_Seeds
    nuX_Utils
    ODESolvers
    TimerReport
@@ -104,10 +104,10 @@ CarpetX::out_silo_vars = "
     HydroBaseX::eps
     HydroBaseX::press
     HydroBaseX::Bvec
-    nuX_M1::rN
-    nuX_M1::rE
+    nuX_Base::rN
+    nuX_Base::rE
     nux_M1::rf
-    nuX_M1::rP
+    nuX_Base::rP
 "
 
 CarpetX::out_tsv_vars = "
@@ -116,10 +116,10 @@ CarpetX::out_tsv_vars = "
     HydroBaseX::eps
     HydroBaseX::press
     HydroBaseX::Bvec
-    nuX_M1::rN
-    nuX_M1::rE
+    nuX_Base::rN
+    nuX_Base::rE
     nux_M1::rf
-    nuX_M1::rP
+    nuX_Base::rP
 "
 
 # -----------------------------------------------------------------------------
@@ -203,11 +203,11 @@ nuX_M1::verbose            = "no"
 nuX_M1::rates_lib          = "FakeRates"
 
 # -----------------------------------------------------------------------------
-# nuX_Seeds
+# nuX_M1_Seeds
 # -----------------------------------------------------------------------------
-nuX_Seeds::verbose         = "no"
-nuX_Seeds::nuX_test_case   = "sphere"
-nuX_Seeds::initialize_asterx_vector_potential = yes
-nuX_Seeds::static_rho      = 1.0
-nuX_Seeds::static_eps      = 1.0e-2
-nuX_Seeds::static_ye       = 0.5
+nuX_M1_Seeds::verbose         = "no"
+nuX_M1_Seeds::nuX_test_case   = "sphere"
+nuX_M1_Seeds::initialize_asterx_vector_potential = yes
+nuX_M1_Seeds::static_rho      = 1.0
+nuX_M1_Seeds::static_eps      = 1.0e-2
+nuX_M1_Seeds::static_ye       = 0.5

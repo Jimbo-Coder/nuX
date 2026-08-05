@@ -13,8 +13,8 @@ ActiveThorns = "
    IOUtil
    nuX_FakeRates
    nuX_M1
-   nuX_M1Seeds
-   nuX_Seeds
+   nuX_Base
+   nuX_M1_Seeds
    nuX_Utils
    ODESolvers
    TimerReport
@@ -101,10 +101,10 @@ CarpetX::out_silo_vars = "
     HydroBaseX::press
     HydroBaseX::Bvec
     CarpetX::regrid_error
-    nuX_M1::rN
-    nuX_M1::rE
+    nuX_Base::rN
+    nuX_Base::rE
     nux_M1::rf
-    nuX_M1::rP
+    nuX_Base::rP
 "
 
 CarpetX::out_tsv_vars = "
@@ -114,10 +114,10 @@ CarpetX::out_tsv_vars = "
     HydroBaseX::press
     HydroBaseX::Bvec
     CarpetX::regrid_error
-    nuX_M1::rN
-    nuX_M1::rE
+    nuX_Base::rN
+    nuX_Base::rE
     nux_M1::rf
-    nuX_M1::rP
+    nuX_Base::rP
 "
 
 # -----------------------------------------------------------------------------
@@ -194,8 +194,8 @@ nuX_M1::source_epsabs      = 1e-8
 nuX_M1::verbose            = "yes"
 
 # -----------------------------------------------------------------------------
-# nuX_Seeds
+# nuX_M1_Seeds
 # -----------------------------------------------------------------------------
-nuX_Seeds::verbose         = "yes"
-nuX_Seeds::nuX_test_case   = "diff_limit_square"
-nuX_Seeds::initialize_asterx_vector_potential = yes
+nuX_M1_Seeds::verbose         = "yes"
+nuX_M1_Seeds::nuX_test_case   = "diff_limit_square"
+nuX_M1_Seeds::initialize_asterx_vector_potential = yes

@@ -1,0 +1,5 @@
+# Configuration definitions for thorn nuX_Base
+
+PROVIDES nuX_Base
+{
+}

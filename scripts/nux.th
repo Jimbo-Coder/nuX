@@ -170,10 +170,11 @@ BNSTools/NRPyPlusTOVID
 nuX/nuX_FakeRates
 nuX/nuX_LeakageBase
 nuX/nuX_M0
+nuX/nuX_M0_Seeds
+nuX/nuX_Base
 nuX/nuX_M1
-nuX/nuX_M1Seeds
 nuX/nuX_NuRates
 nuX/nuX_NuRatesToy
-nuX/nuX_Seeds
+nuX/nuX_M1_Seeds
 nuX/nuX_Utils
 nuX/nuX_WeakRates

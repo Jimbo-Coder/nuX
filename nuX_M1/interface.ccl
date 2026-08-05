@@ -1,6 +1,6 @@
 # Interface definition for thorn nuX_M1
 IMPLEMENTS: nuX_M1
-INHERITS: ADMBaseX AsterX CarpetXRegrid HydroBaseX TmunuBaseX
+INHERITS: ADMBaseX AsterX CarpetXRegrid HydroBaseX TmunuBaseX nuX_Base
 
 INCLUDES HEADER: nuX_M1_closure.hxx IN nuX_M1_closure.hxx 
 
@@ -31,20 +31,6 @@ USES FUNCTION ODESolvers_InPreImplicitStage
 PUBLIC:
 
 ##TODO: add correct dependents and tags for checkpointing
-
-CCTK_REAL rN[nspecies*ngroups] TYPE=GF CENTERING={ccc} TAGS='rhs="rN_rhs" checkpoint="yes" dependents="rP rJ rHt rH rnnu chi opacs nueave fluidsources nu_flux_x nu_flux_y nu_flux_z"' "Neutrino density in the lab frame"
-
-CCTK_REAL rE[nspecies*ngroups] TYPE=GF CENTERING={ccc} TAGS='rhs="rE_rhs" checkpoint="yes" dependents="rP rJ rHt rH rnnu chi opacs nueave fluidsources nu_flux_x nu_flux_y nu_flux_z"' "Radiation energy density in the lab frame"
-
-CCTK_REAL rF[nspecies*ngroups] TYPE=GF CENTERING={ccc} TAGS='rhs="rF_rhs" checkpoint="yes" dependents="rP rJ rHt rH rnnu chi opacs nueave fluidsources nu_flux_x nu_flux_y nu_flux_z"'
-{
-    rFx, rFy, rFz
-} "Radiation energy flux in the lab frame"
-
-CCTK_REAL rP[nspecies*ngroups] TYPE=GF CENTERING={ccc} TAGS='checkpoint="yes"'
-{
-    rPxx, rPxy, rPxz, rPyy, rPyz, rPzz
-} "Radiation pressure in the lab frame, normalized with E"
 
 ## ODESolvers owns old-state and RK/IMEX stage storage, so evolution routines
 ## should use only the current state pointers passed to the active schedule bin.

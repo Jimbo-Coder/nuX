@@ -1,0 +1,6 @@
+# Schedule definitions for thorn nuX_Base
+#
+# Storage for the shared radiation state is intentionally activated by evolution
+# thorns such as nuX_M1. Keeping storage out of nuX_Base lets seed-only users
+# depend on the interface without making rN/rE/rF/rP part of the ODESolvers
+# state vector unless an evolution thorn opts in.

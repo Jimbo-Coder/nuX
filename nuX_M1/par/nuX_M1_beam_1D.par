@@ -16,8 +16,8 @@ ActiveThorns = "
    TmunuBaseX
    nuX_FakeRates
    nuX_M1
-   nuX_M1Seeds
-   nuX_Seeds
+   nuX_Base
+   nuX_M1_Seeds
    nuX_Utils
    "
 
@@ -93,10 +93,10 @@ CarpetX::zmax                    = $xmax
 CarpetX::zmin                    = $xmin
 
 CarpetX::out_tsv_vars = "
-    nuX_M1::rN
-    nuX_M1::rE
+    nuX_Base::rN
+    nuX_Base::rE
     nux_M1::rf
-    nuX_M1::rP
+    nuX_Base::rP
     nuX_M1::rnnu
     nuX_M1::rJ
     nuX_M1::rHt
@@ -188,11 +188,11 @@ nuX_M1::rates_lib            = "FakeRates"
 nuX_M1::verbose              = "no"
 
 # -----------------------------------------------------------------------------
-# nuX_Seeds
+# nuX_M1_Seeds
 # -----------------------------------------------------------------------------
-nuX_Seeds::beam_position = -0.5
-nuX_Seeds::beam_radius   = 1.5
-nuX_Seeds::nuX_test_case = "beam"
-nuX_Seeds::initialize_asterx_vector_potential = yes
-nuX_Seeds::test_nvec     = [0.0,0.0,1.0]
-nuX_Seeds::verbose       = "yes"
+nuX_M1_Seeds::beam_position = -0.5
+nuX_M1_Seeds::beam_radius   = 1.5
+nuX_M1_Seeds::nuX_test_case = "beam"
+nuX_M1_Seeds::initialize_asterx_vector_potential = yes
+nuX_M1_Seeds::test_nvec     = [0.0,0.0,1.0]
+nuX_M1_Seeds::verbose       = "yes"
