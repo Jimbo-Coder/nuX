@@ -34,7 +34,7 @@
 ## Getting Started
 
 * Instructions for downloading and building nuX with the Einstein Toolkit are available [here](https://github.com/EinsteinToolkit/CarpetX/wiki/Getting-Started).  
-* Thornlist is available [here](https://github.com/jaykalinani/nuX/blob/development/Docs/thornlist/nuX.th)
+* Thornlist is available [here](https://github.com/jaykalinani/nuX/blob/odesolvers/Docs/thornlist/nuX.th)
 * Simfactory files for various clusters and setup instructions can be found [here](https://github.com/lwJi/ETK-Compile-Guides).    
 
 ---
