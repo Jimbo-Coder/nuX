@@ -20,6 +20,7 @@ jobs:
       ACCELERATOR: ${{matrix.accelerator}}
       REAL_PRECISION: real64
       TEST_OUTPUT_DIR: /__w/nuX/workspace/simulations/NuXTest01
+      PERFORMANCE_OUTPUT_DIR: /__w/nuX/workspace/simulations/NuXPerformance
 
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +48,10 @@ jobs:
         if: matrix.accelerator == 'cpu'
         run: /bin/bash "$GITHUB_WORKSPACE/scripts/test.sh"
 
+      - name: Run CPU performance smoke test
+        if: matrix.accelerator == 'cpu'
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/performance.sh"
+
       - name: Upload test output
         if: always() && matrix.accelerator == 'cpu'
         uses: actions/upload-artifact@v4
@@ -54,4 +59,13 @@ jobs:
           name: nux-test-output
           path: ${{env.TEST_OUTPUT_DIR}}
           retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload performance timers
+        if: always() && matrix.accelerator == 'cpu'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nux-performance-timers
+          path: ${{env.PERFORMANCE_OUTPUT_DIR}}
+          retention-days: 14
           if-no-files-found: warn
