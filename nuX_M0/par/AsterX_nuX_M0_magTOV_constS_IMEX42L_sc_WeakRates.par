@@ -248,8 +248,8 @@ EOSX::eps_min = 1e-20
 ReconX::reconstruct_with_temperature = "yes"
 ReconX::reconstruction_method = "ppm"
 #ReconX::loworder_method = "ppm"
-#ReconX::ppm_zone_flattening = "yes"
-#ReconX::ppm_shock_detection = "no"
+ReconX::ppm_zone_flattening = "yes"
+ReconX::ppm_shock_detection = "no"
 
 # =============================================================================
 # nuX evolution
