@@ -7,6 +7,7 @@
 #include "cctk_Arguments.h"
 #include "cctk_Parameters.h"
 
+#include "nuX_seed_utils.hxx"
 #include "setup_eos.hxx"
 #include "aster_utils.hxx"
 
@@ -19,6 +20,7 @@ using namespace AsterUtils;
 // -----------------------------------------------------------------------------
 // Main setup routine
 // -----------------------------------------------------------------------------
+#ifndef NUX_M1_SEEDS
 extern "C" void nuX_Seeds_SetupHydroTest_atmosphere(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_Seeds_SetupHydroTest_atmosphere;
   DECLARE_CCTK_PARAMETERS;
@@ -31,16 +33,15 @@ extern "C" void nuX_Seeds_SetupHydroTest_atmosphere(CCTK_ARGUMENTS) {
   grid.loop_all_device<1, 1, 1>(
       grid.nghostzones, [=] CCTK_DEVICE(const PointDesc &p) {
         const int ijk = layout_cc.linear(p.i, p.j, p.k);
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
-          int const i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          rho[ijk] = 0.0;
-          eps[ijk] = 0.0;
-          Ye[ijk] = 0.0;
-          press[ijk] = 0.0;
-        }
+        rho[ijk] = 0.0;
+        eps[ijk] = 0.0;
+        Ye[ijk] = 0.0;
+        press[ijk] = 0.0;
       });
 }
+#endif
 
+#ifdef NUX_M1_SEEDS
 extern "C" void nuX_Seeds_SetupNeutTest_atmosphere(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_Seeds_SetupNeutTest_atmosphere;
   DECLARE_CCTK_PARAMETERS;
@@ -50,14 +51,16 @@ extern "C" void nuX_Seeds_SetupNeutTest_atmosphere(CCTK_ARGUMENTS) {
 
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
+  int const ncomponents = radiation_components();
   grid.loop_all_device<1, 1, 1>(
       grid.nghostzones, [=] CCTK_DEVICE(const PointDesc &p) {
         const int ijk = layout_cc.linear(p.i, p.j, p.k);
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           int const i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           rE[i4D] = rN[i4D] = rFx[i4D] = rFy[i4D] = rFz[i4D] = 0.0;
         }
       });
 }
+#endif
 
 } // namespace nuX_Seeds

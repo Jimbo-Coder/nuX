@@ -1,25 +1,20 @@
-#Schedule definitions for thorn nuX_Seeds
+# Schedule definitions for thorn nuX_Seeds
+
+if (initialize_asterx_vector_potential) {
+  SCHEDULE nuX_Seeds_InitVectorPotential IN HydroBaseX_PostInitial {
+    LANG: C
+    WRITES: AsterX::Avec_x(everywhere)
+    WRITES: AsterX::Avec_y(everywhere)
+    WRITES: AsterX::Avec_z(everywhere)
+  } "Initialize the magnetic vector potential for radiation transport tests"
+}
 
 if (CCTK_Equals(nuX_test_case, "beam")) {
   SCHEDULE nuX_Seeds_SetupHydroTest_beam IN HydroBaseX_InitialData AFTER HydroBaseX_initial_data {
     LANG: C
     WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
     WRITES: HydroBaseX::Ye(everywhere)
-    WRITES: AsterX::Avec_x(everywhere) AsterX::Avec_y(everywhere) AsterX::Avec_z(everywhere)
   } "Setup beam test Hydro initial conditions."
-  SCHEDULE nuX_Seeds_SetupNeutTest_beam IN nuX_M1_InitialData {
-    LANG: C
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup beam test Neutrino initial conditions."
-}
-
-if (CCTK_Equals(nuX_test_case, "equil")) {
-  SCHEDULE nuX_Seeds_SetupNeutTest_equil IN nuX_M1_InitialData {
-    LANG: C
-    READS: ADMBaseX::metric(everywhere)
-    READS: HydroBaseX::vel(everywhere)
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup thermal equilibrium test Neutrino initial conditions."
 }
 
 if (CCTK_Equals(nuX_test_case, "kerrschild")) {
@@ -27,34 +22,7 @@ if (CCTK_Equals(nuX_test_case, "kerrschild")) {
     LANG: C
     WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
     WRITES: HydroBaseX::Ye(everywhere)
-    WRITES: AsterX::Avec_x(everywhere) AsterX::Avec_y(everywhere) AsterX::Avec_z(everywhere)
-  } "Setup advective step Hydro initial conditions."
-  SCHEDULE nuX_Seeds_SetupNeutTest_kerrschild IN nuX_M1_InitialData {
-    LANG: C
-    READS: ADMBaseX::metric(everywhere) ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup KerrSchild test Neutrino initial conditions."
-  SCHEDULE nuX_Seeds_KerrInflow IN nuX_M1_BoundaryConditions AFTER nuX_M1_ApplyBCs {
-    LANG: C
-    READS: ADMBaseX::metric(everywhere) ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
-    READS: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Apply Kerr inflow boundary injection (shadow-style)."
-  SCHEDULE nuX_Seeds_KerrInflow AS nuX_Seeds_KerrInflow_PreFlux \
-      IN nuX_M1_RHSGroup AFTER nuX_M1_SyncConserved BEFORE nuX_M1_FiducialVelocity {
-    LANG: C
-    READS: ADMBaseX::metric(everywhere) ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
-    READS: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Refresh Kerr inflow after conserved sync and before closure/flux computations."
-  SCHEDULE nuX_Seeds_KerrSchild_Mask IN nuX_M1_RHSGroup \
-      AFTER nuX_M1_SetMask \
-      BEFORE nuX_M1_SyncConserved {
-    LANG: C
-    READS: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-    WRITES: nuX_M1::nuX_m1_mask(everywhere)
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Apply KerrSchild excision mask before each ODESolvers RHS evaluation."
+  } "Setup KerrSchild test Hydro initial conditions."
 }
 
 if (CCTK_Equals(nuX_test_case, "adv_velocity_jump")) {
@@ -62,14 +30,7 @@ if (CCTK_Equals(nuX_test_case, "adv_velocity_jump")) {
     LANG: C
     WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
     WRITES: HydroBaseX::Ye(everywhere)
-    WRITES: AsterX::Avec_x(everywhere) AsterX::Avec_y(everywhere) AsterX::Avec_z(everywhere)
   } "Setup advective step Hydro initial conditions."
-  SCHEDULE nuX_Seeds_SetupNeutTest_adv_velocity_jump IN nuX_M1_InitialData {
-    LANG: C
-    READS: ADMBaseX::metric(everywhere)
-    READS: HydroBaseX::vel(everywhere)
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup advective step test Neutrino initial conditions."
 }
 
 if ((CCTK_Equals(nuX_test_case, "diff_limit_square")) || (CCTK_EQUALS(nuX_test_case, "diff_limit_gaussian"))) {
@@ -77,32 +38,15 @@ if ((CCTK_Equals(nuX_test_case, "diff_limit_square")) || (CCTK_EQUALS(nuX_test_c
     LANG: C
     WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
     WRITES: HydroBaseX::Ye(everywhere)
-    WRITES: AsterX::Avec_x(everywhere) AsterX::Avec_y(everywhere) AsterX::Avec_z(everywhere)
   } "Setup diffusion limit test Hydro initial conditions."
-   SCHEDULE nuX_Seeds_SetupNeutTest_diff_limit_test IN nuX_M1_InitialData{
-    LANG: C
-    READS: ADMBaseX::metric(everywhere)
-    READS: HydroBaseX::vel(everywhere)
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup diffusion limit test Neutrino initial conditions."
 }
-
 
 if (CCTK_Equals(nuX_test_case, "shadow")) {
   SCHEDULE nuX_Seeds_SetupHydroTest_shadow IN HydroBaseX_InitialData AFTER HydroBaseX_initial_data {
     LANG: C
     WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
     WRITES: HydroBaseX::Ye(everywhere)
-    WRITES: AsterX::Avec_x(everywhere) AsterX::Avec_y(everywhere) AsterX::Avec_z(everywhere)
   } "Setup shadow test Hydro initial conditions."
-  SCHEDULE nuX_Seeds_SetupNeutTest_shadow IN nuX_M1_InitialData {
-    LANG: C
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup shadow test Neutrino initial conditions."
-  SCHEDULE nuX_Seeds_ShadowBCs IN nuX_M1_BoundaryConditions AFTER nuX_M1_ApplyBCs {
-    LANG: C
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Apply shadow test inflow boundary conditions."
 }
 
 if (CCTK_Equals(nuX_test_case, "atmosphere")) {
@@ -111,10 +55,6 @@ if (CCTK_Equals(nuX_test_case, "atmosphere")) {
     WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
     WRITES: HydroBaseX::Ye(everywhere)
   } "Setup atmosphere test Hydro initial conditions."
-  SCHEDULE nuX_Seeds_SetupNeutTest_atmosphere IN nuX_M1_InitialData {
-    LANG: C
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup atmosphere test Neutrino initial conditions."
 }
 
 if (CCTK_Equals(nuX_test_case, "sphere")) {
@@ -122,66 +62,5 @@ if (CCTK_Equals(nuX_test_case, "sphere")) {
     LANG: C
     WRITES: HydroBaseX::vel(everywhere) HydroBaseX::rho(everywhere) HydroBaseX::eps(everywhere) HydroBaseX::press(everywhere)
     WRITES: HydroBaseX::Ye(everywhere)
-    WRITES: AsterX::Avec_x(everywhere) AsterX::Avec_y(everywhere) AsterX::Avec_z(everywhere)
   } "Setup sphere test Hydro initial conditions."
-  SCHEDULE nuX_Seeds_SetupNeutTest_sphere IN nuX_M1_InitialData {
-    LANG: C
-    WRITES: nuX_M1::rN(everywhere) nuX_M1::rE(everywhere) nuX_M1::rF(everywhere)
-  } "Setup sphere test Neutrino initial conditions."
 }
-
-
-
-###############################################################################
-# Tests
-###############################################################################
-
-
-#if (CCTK_Equals(nuX_m1_test, "beam")) {
-#    SCHEDULE nuX_M1_SetupTest_beam IN nuX_M1_InitialData
-#    {
-#        LANG: C
-#        WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
-#    } "Setup initial data for beam test"
-#}
-#
-#
-#if (CCTK_Equals(nuX_m1_test, "equil")) {
-#    SCHEDULE nuX_M1_SetupTest_equil IN nuX_M1_InitialData
-#    {
-#        LANG: C
-#        READS: fidu_w_lorentz(everywhere) fidu_vel(everywhere) 
-#        WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
-#
-#   #    SCHEDULE nuX_ConsToAll IN HydroBase_Con2Prim
-#   # {
-#   #     LANG: C
-#   # } "Computes the primitives from the conservatives"
-#   } "Setup initial data for equil test"
-#}
-#
-#if ((CCTK_Equals(nuX_m1_test, "kerrschild")) || (CCTK_Equals(nuX_m1_test, "sphere")) || (CCTK_Equals(nuX_m1_test, "shadow"))) {
-#    SCHEDULE nuX_M1_SetupTest_kss IN nuX_M1_InitialData
-#    {
-#        LANG: C
-#        WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
-#    } "Setup initial data to vacuum for KS, Spherical, Shadow data"
-#}
-#
-#if (CCTK_Equals(nuX_m1_test, "kerrschild")) {
-#    SCHEDULE nuX_M1_KerrBCs IN nuX_M1_BoundaryConditions \
-#        AFTER nuX_M1_ApplyBCs
-#    {
-#        LANG: C
-#    } "Apply custom boundary conditions"
-#
-#     SCHEDULE nuX_M1_KerrSchild_Mask IN nuX_M1_EVOL \
-#         AFTER nuX_M1_SetMask \
-#         BEFORE nuX_M1_TimeStep
-#     {
-#         LANG: C
-#         WRITES: nuX_m1_mask(everywhere)
-#         WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
-#     } "Cheap excision for the Kerr Schild test"
-# }
-#

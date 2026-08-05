@@ -2,6 +2,7 @@
 
 # Source files in this directory
 SRCS = \
+nuX_seed_vector_potential.cxx \
 nuX_beam.cxx \
 nuX_equil.cxx \
 nuX_kerrschild.cxx \

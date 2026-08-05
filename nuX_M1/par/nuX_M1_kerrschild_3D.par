@@ -16,6 +16,7 @@ ActiveThorns = "
    KerrSchildX
    nuX_FakeRates
    nuX_M1
+   nuX_M1Seeds
    nuX_Seeds
    nuX_Utils
    ODESolvers
@@ -222,6 +223,7 @@ nuX_M1::verbose              = "no"
 # -----------------------------------------------------------------------------
 nuX_Seeds::verbose            = "yes"
 nuX_Seeds::nuX_test_case      = "kerrschild"
+nuX_Seeds::initialize_asterx_vector_potential = yes
 nuX_Seeds::kerr_beam_position = 3.25
 nuX_Seeds::kerr_beam_width    = 0.5
 nuX_Seeds::kerr_mask_radius   = 1.0

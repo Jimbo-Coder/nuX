@@ -1,0 +1,151 @@
+ActiveThorns = "
+  ADMBaseX
+  AsterMasks
+  AsterX
+  BoxInBox
+  CarpetX
+  Con2PrimFactory
+  Cowling
+  EOSX
+  HydroBaseX
+  IOUtil
+  ODESolvers
+  Subcycling
+  TmunuBaseX
+  nuX_FakeRates
+  nuX_LeakageBase
+  nuX_M0
+  nuX_Seeds
+  nuX_Utils
+"
+
+$ncells = 64
+$ntrans = 8
+
+Cactus::cctk_show_schedule = no
+Cactus::presync_mode = "mixed-error"
+Cactus::terminate = "iteration"
+Cactus::cctk_itlast = 16
+
+ADMBaseX::initial_data = "Cartesian Minkowski"
+ADMBaseX::initial_lapse = "one"
+ADMBaseX::initial_shift = "zero"
+ADMBaseX::initial_dtlapse = "none"
+ADMBaseX::initial_dtshift = "none"
+
+AsterX::debug_mode = "yes"
+AsterX::freeze_evolution = yes
+AsterX::flux_type = "LxF"
+AsterX::local_estimate_error = "no"
+AsterX::recon_type = "z_vec"
+
+CarpetX::verbose = no
+CarpetX::poison_undefined_values = yes
+CarpetX::xmin = -4.0
+CarpetX::ymin = -4.0
+CarpetX::zmin = -4.0
+CarpetX::xmax = 4.0
+CarpetX::ymax = 4.0
+CarpetX::zmax = 4.0
+CarpetX::periodic = yes
+CarpetX::periodic_x = yes
+CarpetX::periodic_y = yes
+CarpetX::periodic_z = yes
+CarpetX::boundary_x = none
+CarpetX::boundary_y = none
+CarpetX::boundary_z = none
+CarpetX::boundary_upper_x = none
+CarpetX::boundary_upper_y = none
+CarpetX::boundary_upper_z = none
+CarpetX::ncells_x = $ntrans
+CarpetX::ncells_y = $ntrans
+CarpetX::ncells_z = $ncells
+CarpetX::max_grid_size_x = $ntrans
+CarpetX::max_grid_size_y = $ntrans
+CarpetX::max_grid_size_z = $ncells
+CarpetX::max_num_levels = 2
+CarpetX::regrid_every = 100000
+CarpetX::blocking_factor_x = 1
+CarpetX::blocking_factor_y = 1
+CarpetX::blocking_factor_z = 1
+CarpetX::regrid_error_threshold = 0.5
+CarpetX::refine_grid_layout = no
+CarpetX::restrict_during_sync = no
+CarpetX::use_subcycling = yes
+CarpetX::prolongation_type = "ddf"
+CarpetX::ghost_size = 2
+CarpetX::dtfac = 0.1
+
+BoxInBox::num_regions = 1
+BoxInBox::shape_1 = "cube"
+BoxInBox::num_levels_1 = 2
+BoxInBox::position_x_1 = 0.0
+BoxInBox::position_y_1 = 0.0
+BoxInBox::position_z_1 = 0.0
+BoxInBox::radius_x_1 = [-1, 4.0]
+BoxInBox::radius_y_1 = [-1, 4.0]
+BoxInBox::radius_z_1 = [-1, 2.0]
+
+HydroBaseX::initial_hydro = "vacuum"
+
+EOSX::evolution_eos = "IdealGas"
+EOSX::gl_gamma = 2.0
+EOSX::poly_gamma = 2.0
+EOSX::poly_k = 1.0
+EOSX::rho_max = 1e8
+EOSX::eps_min = 1e-5
+EOSX::eps_max = 1e8
+
+ODESolvers::method = "IMEX42L"
+
+nuX_FakeRates::eta_nue = 1.0
+nuX_FakeRates::eta_nua = 1.0
+nuX_FakeRates::eta_nux = 1.0
+nuX_FakeRates::eta_anux = 1.0
+nuX_FakeRates::kappa_abs_nue = 0.1
+nuX_FakeRates::kappa_abs_nua = 0.1
+nuX_FakeRates::kappa_abs_nux = 0.1
+nuX_FakeRates::kappa_abs_anux = 0.1
+nuX_FakeRates::kappa_scat_nue = 0.0
+nuX_FakeRates::kappa_scat_nua = 0.0
+nuX_FakeRates::kappa_scat_nux = 0.0
+nuX_FakeRates::kappa_scat_anux = 0.0
+
+nuX_LeakageBase::rates_lib = "FakeRates"
+nuX_LeakageBase::neu_abs_type = "nuX_M0"
+nuX_LeakageBase::init_method = "zero"
+nuX_LeakageBase::density_cutoff = 0.0
+nuX_LeakageBase::verbose = "no"
+
+nuX_M0::rmax = 3.0
+nuX_M0::nrad = 48
+nuX_M0::nray = 32
+nuX_M0::compute_every = 1
+nuX_M0::verbose = "no"
+nuX_M0::backreact = "no"
+
+nuX_Seeds::initialize_asterx_vector_potential = yes
+nuX_Seeds::nuX_test_case = "diff_limit_gaussian"
+nuX_Seeds::profile_hydro_density = yes
+nuX_Seeds::rho_atmosphere = 1.0e-9
+nuX_Seeds::static_eps = 1.0e-2
+nuX_Seeds::static_rho = 1.0
+nuX_Seeds::static_velz = 0.0
+nuX_Seeds::static_ye = 0.5
+nuX_Seeds::verbose = "no"
+
+IO::out_dir = $parfile
+IO::out_every = 16
+IO::parfile_write = no
+CarpetX::out_metadata = no
+CarpetX::out_norm_vars = "
+  HydroBaseX::rho
+  nuX_LeakageBase::nuX_leakage_eff_rates
+  nuX_LeakageBase::nuX_leakage_abs
+"
+CarpetX::out_norm_omit_unstable = yes
+CarpetX::out_tsv_vars = "
+  HydroBaseX::rho
+  nuX_LeakageBase::R_eff_nue
+  nuX_LeakageBase::abs_energy
+"

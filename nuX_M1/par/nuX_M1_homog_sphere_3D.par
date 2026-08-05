@@ -13,6 +13,7 @@ ActiveThorns = "
    IOUtil
    nuX_FakeRates
    nuX_M1
+   nuX_M1Seeds
    nuX_Seeds
    nuX_Utils
    ODESolvers
@@ -206,6 +207,7 @@ nuX_M1::rates_lib          = "FakeRates"
 # -----------------------------------------------------------------------------
 nuX_Seeds::verbose         = "no"
 nuX_Seeds::nuX_test_case   = "sphere"
+nuX_Seeds::initialize_asterx_vector_potential = yes
 nuX_Seeds::static_rho      = 1.0
 nuX_Seeds::static_eps      = 1.0e-2
 nuX_Seeds::static_ye       = 0.5

@@ -1,0 +1,16 @@
+# nuX_M1 test initial-data parameters are owned by nuX_Seeds.
+
+SHARES: nuX_Seeds
+USES KEYWORD nuX_test_case
+USES CCTK_REAL static_E
+USES CCTK_REAL test_nvec
+USES CCTK_REAL beam_position
+USES CCTK_REAL beam_radius
+USES CCTK_REAL roi_radius
+USES CCTK_REAL equil_nudens_0
+USES CCTK_REAL equil_nudens_1
+USES CCTK_REAL kerr_beam_position
+USES CCTK_REAL kerr_beam_width
+USES CCTK_REAL kerr_beam_y_width
+USES CCTK_REAL kerr_mask_radius
+USES BOOLEAN verbose

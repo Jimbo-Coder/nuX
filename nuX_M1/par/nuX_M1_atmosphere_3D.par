@@ -13,6 +13,7 @@ ActiveThorns = "
    IOUtil
    nuX_FakeRates
    nuX_M1
+   nuX_M1Seeds
    nuX_Seeds
    nuX_Utils
    ODESolvers

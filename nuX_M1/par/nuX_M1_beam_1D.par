@@ -16,6 +16,7 @@ ActiveThorns = "
    TmunuBaseX
    nuX_FakeRates
    nuX_M1
+   nuX_M1Seeds
    nuX_Seeds
    nuX_Utils
    "
@@ -192,5 +193,6 @@ nuX_M1::verbose              = "no"
 nuX_Seeds::beam_position = -0.5
 nuX_Seeds::beam_radius   = 1.5
 nuX_Seeds::nuX_test_case = "beam"
+nuX_Seeds::initialize_asterx_vector_potential = yes
 nuX_Seeds::test_nvec     = [0.0,0.0,1.0]
 nuX_Seeds::verbose       = "yes"

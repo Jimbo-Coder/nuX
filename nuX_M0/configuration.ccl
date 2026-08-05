@@ -1,0 +1,7 @@
+# Configuration definitions for thorn nuX_M0
+
+REQUIRES AsterUtils EOSX Loop MPI
+
+PROVIDES nuX_M0
+{
+}

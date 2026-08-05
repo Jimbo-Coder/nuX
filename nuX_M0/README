@@ -1,0 +1,22 @@
+nuX_M0 provides GPU-accelerated ray-by-ray M0 neutrino transport on a
+spherical grid. It consumes rate-independent leakage fields from
+nuX_LeakageBase and returns electron-neutrino absorption and heating to the
+Cartesian mesh.
+
+At the beginning of each synchronized CarpetX coarse step, hydrodynamic and
+metric fields are interpolated to the ray grid. The selected rate library is
+then evaluated on the rays, the transport equations are advanced by the
+elapsed synchronized time, and absorption is interpolated back to the
+Cartesian mesh. nuX_M0 holds this nonlocal source fixed during the following
+ODESolvers IMEX/subcycling step.
+
+The radial transport sweep preserves the THC_M0 discretization and is
+parallelized over rays on the GPU. `compute_every = N` executes on iterations
+`1, 1+N, ...`. If M0 is switched off, Cartesian absorption is cleared at the
+next all-level synchronization, independently of that cadence.
+
+Each MPI rank currently owns the complete spherical grid and advances all
+rays. Distributed ray ownership is intentionally deferred; the replicated
+layout favors THC parity and simple interpolation but is not the final
+scalability design. Energy-dependent opacity and ray excision are currently
+rejected by parameter checks rather than silently approximated.

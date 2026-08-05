@@ -5,6 +5,7 @@
 #include "cctk_Arguments.h"
 #include "cctk_Parameters.h"
 
+#include "nuX_seed_utils.hxx"
 #include "setup_eos.hxx"
 
 namespace nuX_Seeds {
@@ -15,6 +16,7 @@ using namespace EOSX;
 // -----------------------------------------------------------------------------
 // Main setup routine
 // -----------------------------------------------------------------------------
+#ifndef NUX_M1_SEEDS
 extern "C" void nuX_Seeds_SetupHydroTest_adv_velocity_jump(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_Seeds_SetupHydroTest_adv_velocity_jump;
   DECLARE_CCTK_PARAMETERS;
@@ -31,9 +33,6 @@ extern "C" void nuX_Seeds_SetupHydroTest_adv_velocity_jump(CCTK_ARGUMENTS) {
 
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
-  const GF3D2layout layout3(cctkGH, {1, 0, 0});
-  const GF3D2layout layout4(cctkGH, {0, 1, 0});
-  const GF3D2layout layout5(cctkGH, {0, 0, 1});
 
   CCTK_REAL nx = test_nvec[0];
   CCTK_REAL ny = test_nvec[1];
@@ -54,48 +53,26 @@ extern "C" void nuX_Seeds_SetupHydroTest_adv_velocity_jump(CCTK_ARGUMENTS) {
   grid.loop_all_device<1, 1, 1>(grid.nghostzones, [=] CCTK_DEVICE(
                                                       const PointDesc &p) {
     const int ijk = layout_cc.linear(p.i, p.j, p.k);
-    for (int ig = 0; ig < ngroups * nspecies; ++ig) {
-      int const i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-      CCTK_REAL const dotp3d = nx * p.x + ny * p.y + nz * p.z;
-      if (dotp3d < 0.0) {
-        velx[ijk] = static_velx;
-        vely[ijk] = static_vely;
-        velz[ijk] = static_velz;
-      } else if (dotp3d >= 0.0) {
-        velx[ijk] = -static_velx;
-        vely[ijk] = -static_vely;
-        velz[ijk] = -static_velz;
-      }
-      rho[ijk] = static_rho;
-      eps[ijk] = static_eps;
-      Ye[ijk] = static_ye;
-
-      press[ijk] =
-          eos_3p_ig->press_from_rho_eps_ye(rho[ijk], eps[ijk], Ye[ijk]);
+    CCTK_REAL const dotp3d = nx * p.x + ny * p.y + nz * p.z;
+    if (dotp3d < 0.0) {
+      velx[ijk] = static_velx;
+      vely[ijk] = static_vely;
+      velz[ijk] = static_velz;
+    } else {
+      velx[ijk] = -static_velx;
+      vely[ijk] = -static_vely;
+      velz[ijk] = -static_velz;
     }
+    rho[ijk] = static_rho;
+    eps[ijk] = static_eps;
+    Ye[ijk] = static_ye;
+    press[ijk] =
+        eos_3p_ig->press_from_rho_eps_ye(rho[ijk], eps[ijk], Ye[ijk]);
   });
-  grid.loop_all_device<1, 0, 0>(
-      grid.nghostzones,
-      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-        const int ijk = layout3.linear(p.i, p.j, p.k);
-        Avec_x[ijk] = 0.;
-      });
-
-  grid.loop_all_device<0, 1, 0>(
-      grid.nghostzones,
-      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-        const int ijk = layout4.linear(p.i, p.j, p.k);
-        Avec_y[ijk] = 0.;
-      });
-
-  grid.loop_all_device<0, 0, 1>(
-      grid.nghostzones,
-      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-        const int ijk = layout5.linear(p.i, p.j, p.k);
-        Avec_z[ijk] = 0.;
-      });
 }
+#endif
 
+#ifdef NUX_M1_SEEDS
 extern "C" void nuX_Seeds_SetupNeutTest_adv_velocity_jump(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_Seeds_SetupNeutTest_adv_velocity_jump;
   DECLARE_CCTK_PARAMETERS;
@@ -105,6 +82,7 @@ extern "C" void nuX_Seeds_SetupNeutTest_adv_velocity_jump(CCTK_ARGUMENTS) {
 
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
+  int const ncomponents = radiation_components();
 
   CCTK_REAL nx = test_nvec[0];
   CCTK_REAL ny = test_nvec[1];
@@ -124,7 +102,7 @@ extern "C" void nuX_Seeds_SetupNeutTest_adv_velocity_jump(CCTK_ARGUMENTS) {
 
   grid.loop_all_device<1, 1, 1>(
       grid.nghostzones, [=] CCTK_DEVICE(const PointDesc &p) {
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           int const i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           CCTK_REAL const dotp3d = nx * p.x + ny * p.y + nz * p.z;
           if (dotp3d < 0.0) {
@@ -139,5 +117,6 @@ extern "C" void nuX_Seeds_SetupNeutTest_adv_velocity_jump(CCTK_ARGUMENTS) {
         }
       });
 }
+#endif
 
 } // namespace nuX_Seeds

@@ -1,12 +1,14 @@
 # Parameter definitions for thorn AsterSeeds
 
+RESTRICTED:
+
 KEYWORD test_type "Type of test to set up" STEERABLE=never
 {
   "None"   :: "Initial data should be written by another thorn"
   "1DTest" :: ""
   "2DTest" :: ""
-  "3DTest" :: "" 
-  "Atmosphere" :: "Atmosphere" 
+  "3DTest" :: ""
+  "Atmosphere" :: "Atmosphere"
 } "1DTest"
 
 ###############################################################################
@@ -26,10 +28,18 @@ KEYWORD nuX_test_case "Perform simple tests"
     "sphere"     :: "Homogeneous sphere test"
 } "none"
 
+BOOLEAN initialize_asterx_vector_potential "Initialize the AsterX vector potential to zero for radiation tests"
+{
+} "no"
+
 CCTK_REAL static_rho "Initial rest mass density"
 {
     (0:) :: "Any positive number"
 } 1.0
+
+BOOLEAN profile_hydro_density "Use the radiation-test profile for the hydro density"
+{
+} "no"
 
 CCTK_REAL static_E "Initial total energy density"
 {
@@ -60,7 +70,6 @@ CCTK_REAL static_ye "Initial electron fraction"
 {
     [0:1] :: "Any number between 0 and 1"
 } 0.5
-
 
 CCTK_REAL test_nvec[3] "Direction of propagation for the initial packet"
 {
@@ -137,7 +146,3 @@ BOOLEAN verbose "Debug output" STEERABLE=always
 
 SHARES: EOSX
 USES KEYWORD evolution_eos
-
-SHARES: nuX_M1
-USES CCTK_INT ngroups
-USES CCTK_INT nspecies

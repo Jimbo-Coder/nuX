@@ -5,6 +5,7 @@
 #include "cctk_Arguments.h"
 #include "cctk_Parameters.h"
 
+#include "nuX_seed_utils.hxx"
 #include "nuX_tensor.hxx"
 #include "setup_eos.hxx"
 
@@ -14,6 +15,7 @@ using namespace Loop;
 using namespace EOSX;
 using namespace nuX_Utils;
 
+#ifndef NUX_M1_SEEDS
 extern "C" void nuX_Seeds_SetupHydroTest_kerrschild(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_Seeds_SetupHydroTest_kerrschild;
   DECLARE_CCTK_PARAMETERS;
@@ -30,9 +32,6 @@ extern "C" void nuX_Seeds_SetupHydroTest_kerrschild(CCTK_ARGUMENTS) {
 
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
-  const GF3D2layout layout3(cctkGH, {1, 0, 0});
-  const GF3D2layout layout4(cctkGH, {0, 1, 0});
-  const GF3D2layout layout5(cctkGH, {0, 0, 1});
 
   grid.loop_all_device<1, 1, 1>(
       grid.nghostzones, [=] CCTK_DEVICE(const PointDesc &p) {
@@ -47,28 +46,10 @@ extern "C" void nuX_Seeds_SetupHydroTest_kerrschild(CCTK_ARGUMENTS) {
         press[ijk] =
             eos_3p_ig->press_from_rho_eps_ye(rho[ijk], eps[ijk], Ye[ijk]);
       });
-  grid.loop_all_device<1, 0, 0>(
-      grid.nghostzones,
-      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-        const int ijk = layout3.linear(p.i, p.j, p.k);
-        Avec_x[ijk] = 0.;
-      });
-
-  grid.loop_all_device<0, 1, 0>(
-      grid.nghostzones,
-      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-        const int ijk = layout4.linear(p.i, p.j, p.k);
-        Avec_y[ijk] = 0.;
-      });
-
-  grid.loop_all_device<0, 0, 1>(
-      grid.nghostzones,
-      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-        const int ijk = layout5.linear(p.i, p.j, p.k);
-        Avec_z[ijk] = 0.;
-      });
 }
+#endif
 
+#ifdef NUX_M1_SEEDS
 extern "C" void nuX_Seeds_SetupNeutTest_kerrschild(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTS_nuX_Seeds_SetupNeutTest_kerrschild;
   DECLARE_CCTK_PARAMETERS;
@@ -78,11 +59,12 @@ extern "C" void nuX_Seeds_SetupNeutTest_kerrschild(CCTK_ARGUMENTS) {
 
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
+  int const ncomponents = radiation_components();
 
   grid.loop_all_device<1, 1, 1>(
       grid.nghostzones,
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           int const i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           rE[i4D] = 0.0;
           rFx[i4D] = 0.0;
@@ -100,6 +82,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
   const GF3D2layout layout_vc(cctkGH, {0, 0, 0});
+  int const ncomponents = radiation_components();
   const GF3D2<const CCTK_REAL> gf_alp(layout_vc, alp);
   const GF3D2<const CCTK_REAL> gf_betax(layout_vc, betax);
   const GF3D2<const CCTK_REAL> gf_betay(layout_vc, betay);
@@ -129,7 +112,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (p.NI[0] == 0 && p.NI[1] == 0 && p.NI[2] == 0)
           return;
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           rE[i4D] = 0.0;
           rFx[i4D] = 0.0;
@@ -203,7 +186,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
           N_new = 1.0;
         }
 
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           rE[i4D] = E_new;
           rFx[i4D] = Fx_new;
@@ -220,7 +203,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (!(p.BI[0] == 1 || p.NI[0] > 0))
           return;
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           rE[i4D] = 0.0;
           rFx[i4D] = 0.0;
@@ -239,7 +222,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (p.NI[1] >= 0)
           return;
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           const int i4Db = layout_cc.linear(p.i, p.j, p.k, ig);
           const int i4Di = layout_cc.linear(p.i, p.I0[1], p.k, ig);
           rE[i4Db] = rE[i4Di];
@@ -256,7 +239,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (p.NI[1] <= 0)
           return;
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           const int i4Db = layout_cc.linear(p.i, p.j, p.k, ig);
           const int i4Di = layout_cc.linear(p.i, p.I0[1], p.k, ig);
           rE[i4Db] = rE[i4Di];
@@ -272,7 +255,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (!(p.BI[2] == -1 || p.NI[2] < 0))
           return;
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           rE[i4D] = 0.0;
           rFx[i4D] = 0.0;
@@ -289,7 +272,7 @@ extern "C" void nuX_Seeds_KerrInflow(CCTK_ARGUMENTS) {
       [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         if (!(p.BI[2] == 1 || p.NI[2] > 0))
           return;
-        for (int ig = 0; ig < ngroups * nspecies; ++ig) {
+        for (int ig = 0; ig < ncomponents; ++ig) {
           const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
           rE[i4D] = 0.0;
           rFx[i4D] = 0.0;
@@ -308,6 +291,7 @@ extern "C" void nuX_Seeds_KerrSchild_Mask(CCTK_ARGUMENTS) {
 
   const GridDescBaseDevice grid(cctkGH);
   const GF3D2layout layout_cc(cctkGH, {1, 1, 1});
+  int const ncomponents = radiation_components();
   const CCTK_REAL mask_r2 = kerr_mask_radius * kerr_mask_radius;
 
   grid.loop_all_device<1, 1, 1>(
@@ -318,7 +302,7 @@ extern "C" void nuX_Seeds_KerrSchild_Mask(CCTK_ARGUMENTS) {
         nuX_m1_mask[ijk] = masked ? 1.0 : 0.0;
 
         if (masked) {
-          for (int ig = 0; ig < nspecies * ngroups; ++ig) {
+          for (int ig = 0; ig < ncomponents; ++ig) {
             const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
             rN[i4D] = 0.0;
             rE[i4D] = 0.0;
@@ -329,5 +313,6 @@ extern "C" void nuX_Seeds_KerrSchild_Mask(CCTK_ARGUMENTS) {
         }
       });
 }
+#endif
 
 } // namespace nuX_Seeds

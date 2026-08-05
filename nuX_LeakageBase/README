@@ -1,0 +1,4 @@
+nuX_LeakageBase provides rate-library-independent leakage opacities, optical
+depths, free/effective emission rates, and absorption fields. The selected
+rate library can be nuX_NuRates, nuX_WeakRates, or nuX_FakeRates. Matter
+coupling and absorption transport are supplied by nuX_M0.

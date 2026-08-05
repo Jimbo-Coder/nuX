@@ -168,7 +168,10 @@ BNSTools/NRPyPlusTOVID
 !TYPE     = ignore
 !CHECKOUT =
 nuX/nuX_FakeRates
+nuX/nuX_LeakageBase
+nuX/nuX_M0
 nuX/nuX_M1
+nuX/nuX_M1Seeds
 nuX/nuX_NuRates
 nuX/nuX_NuRatesToy
 nuX/nuX_Seeds

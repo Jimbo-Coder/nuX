@@ -16,6 +16,7 @@ ActiveThorns = "
    TmunuBaseX
    nuX_FakeRates
    nuX_M1
+   nuX_M1Seeds
    nuX_Seeds
    nuX_Utils
    "
@@ -208,6 +209,7 @@ nuX_M1::verbose              = "no"
 # nuX_Seeds
 # -----------------------------------------------------------------------------
 nuX_Seeds::nuX_test_case = "adv_velocity_jump"
+nuX_Seeds::initialize_asterx_vector_potential = yes
 nuX_Seeds::static_E      = 1.0
 nuX_Seeds::static_eps    = 1.0e-2
 nuX_Seeds::static_rho    = 1.0

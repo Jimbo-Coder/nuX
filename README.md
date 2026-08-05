@@ -12,6 +12,7 @@
 ## Overview
 
 - Two-moment (**M1**) neutrino transport with analytic closures (e.g., Minerbo/Levermore)  
+- Ray-by-ray **M0** leakage transport with synchronized CarpetX subcycling
 - Port of the `THC_M1` code of Radice et al. 2022
 - Multi-species support (typically $ν_e$, $\barν_e$, $ν_x$)  
 - Source terms for neutrino–matter coupling and stress–energy feedback ($T^{μν}_{\rm rad}$) coupled with **AsterX** 
@@ -22,11 +23,14 @@
 ## Available Modules
 
 - `nuX_M1` — Core M1 evolution: fluxes, closures, source terms, analysis/diagnostics, stress–energy output
+- `nuX_M0` — GPU ray-by-ray M0 transport and matter coupling
+- `nuX_LeakageBase` — Rate-library-independent leakage and optical depths
 - `nuX_NuRates` — Physical interaction rates & opacities via `bns_nurates`
 - `nuX_WeakRates` — Independent GPU-capable WeakRates implementation for transport and THC_M1 cross-validation
 - `nuX_FakeRates` — Lightweight fake/constant rates for testing
 - `nuX_NuRatesToy` — Toy module for testing
-- `nuX_Seeds` — Initial data for radiation fields as well as MHD variables
+- `nuX_Seeds` — Shared hydrodynamic test initial data
+- `nuX_M1Seeds` — M1-specific radiation initial data and test boundaries
 - `nuX_Utils` — Tensor utilities, metric helpers, math wrappers
 
 ---

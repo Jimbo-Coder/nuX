@@ -13,6 +13,7 @@ ActiveThorns = "
    IOUtil
    nuX_FakeRates
    nuX_M1
+   nuX_M1Seeds
    nuX_Seeds
    nuX_Utils
    ODESolvers
@@ -197,3 +198,4 @@ nuX_M1::verbose            = "yes"
 # -----------------------------------------------------------------------------
 nuX_Seeds::verbose         = "yes"
 nuX_Seeds::nuX_test_case   = "diff_limit_square"
+nuX_Seeds::initialize_asterx_vector_potential = yes

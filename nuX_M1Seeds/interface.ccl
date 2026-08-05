@@ -1,0 +1,8 @@
+# Interface definition for thorn nuX_M1Seeds
+
+IMPLEMENTS: nuX_M1Seeds
+INHERITS: ADMBaseX HydroBaseX nuX_M1
+
+USES INCLUDE HEADER: loop_device.hxx
+USES INCLUDE HEADER: aster_utils.hxx
+USES INCLUDE HEADER: nuX_tensor.hxx

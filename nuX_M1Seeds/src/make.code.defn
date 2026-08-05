@@ -1,0 +1,12 @@
+# Source files in this directory
+SRCS = \
+nuX_M1Seeds_adv_velocity_jump.cxx \
+nuX_M1Seeds_atmosphere.cxx \
+nuX_M1Seeds_beam.cxx \
+nuX_M1Seeds_diff_limit.cxx \
+nuX_M1Seeds_equil.cxx \
+nuX_M1Seeds_kerrschild.cxx \
+nuX_M1Seeds_shadow.cxx \
+nuX_M1Seeds_sphere.cxx
+
+SUBDIRS =
