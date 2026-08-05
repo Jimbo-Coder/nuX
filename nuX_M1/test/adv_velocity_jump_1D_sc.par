@@ -14,6 +14,7 @@ ActiveThorns = "
   TmunuBaseX
   nuX_FakeRates
   nuX_M1
+  nuX_M1Seeds
   nuX_Seeds
   nuX_Utils
 "
@@ -41,7 +42,8 @@ AsterX::local_estimate_error = "no"
 AsterX::recon_type = "z_vec"
 
 CarpetX::verbose = no
-CarpetX::poison_undefined_values = no
+CarpetX::poison_undefined_values = yes
+CarpetX::poison_undefined_arrays = yes
 CarpetX::xmin = $xmin
 CarpetX::ymin = $xmin
 CarpetX::zmin = $xmin
@@ -130,6 +132,7 @@ nuX_M1::reset_to_equilibrium = "no"
 nuX_M1::verbose = "no"
 
 nuX_Seeds::nuX_test_case = "adv_velocity_jump"
+nuX_Seeds::initialize_asterx_vector_potential = yes
 nuX_Seeds::static_E = 1.0
 nuX_Seeds::static_eps = 1.0e-2
 nuX_Seeds::static_rho = 1.0
