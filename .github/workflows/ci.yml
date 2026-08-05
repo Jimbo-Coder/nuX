@@ -18,6 +18,7 @@ jobs:
     env:
       ACCELERATOR: ${{matrix.accelerator}}
       REAL_PRECISION: real64
+      TEST_OUTPUT_DIR: ${{github.workspace}}/../workspace/simulations/NuXTest01
 
     steps:
       - uses: actions/checkout@v4

@@ -47,7 +47,7 @@ CactusBase/IOUtil
 CactusBase/SymBase
 CactusBase/Time
 
-# Cactus test support enabled by the AsterX CI machine configuration
+# Cactus test support enabled by the nuX CI machine configuration
 !TARGET   = $ARR
 !TYPE     = git
 !URL      = https://bitbucket.org/cactuscode/cactustest.git
@@ -158,19 +158,6 @@ AsterX/EOSX
 AsterX/ID_TabEOS_HydroQuantities
 AsterX/ReconX
 AsterX/TOVSolverX
-AsterX/scripts/actions-cpu-real64.cfg
-AsterX/scripts/actions-cpu-real64.ini
-AsterX/scripts/actions-cpu-real64.run
-AsterX/scripts/actions-cpu-real64.sub
-AsterX/scripts/actions-cuda-real64.cfg
-AsterX/scripts/actions-cuda-real64.ini
-AsterX/scripts/actions-cuda-real64.run
-AsterX/scripts/actions-cuda-real64.sub
-AsterX/scripts/actions-rocm-real64.cfg
-AsterX/scripts/actions-rocm-real64.ini
-AsterX/scripts/actions-rocm-real64.run
-AsterX/scripts/actions-rocm-real64.sub
-AsterX/scripts/defs.local.ini
 
 # BNSTools dev branch
 !TARGET   = $ARR
