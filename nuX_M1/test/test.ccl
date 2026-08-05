@@ -1,0 +1,5 @@
+# Settings shared by all nuX_M1 regression tests
+
+NPROCS 1
+ABSTOL 1e-8
+RELTOL 1e-8
