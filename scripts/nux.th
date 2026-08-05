@@ -47,14 +47,6 @@ CactusBase/IOUtil
 CactusBase/SymBase
 CactusBase/Time
 
-# Cactus test support enabled by the nuX CI machine configuration
-!TARGET   = $ARR
-!TYPE     = git
-!URL      = https://bitbucket.org/cactuscode/cactustest.git
-!REPO_PATH= $2
-!CHECKOUT =
-CactusTest/TestAllTypes
-
 # CactusUtils thorns
 !TARGET   = $ARR
 !TYPE     = git
