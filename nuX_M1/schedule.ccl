@@ -3,10 +3,10 @@
 ###############################################################################
 # Storage
 ###############################################################################
-STORAGE: rN
-STORAGE: rE
-STORAGE: rF
-STORAGE: rP
+STORAGE: nuX_Base::rN
+STORAGE: nuX_Base::rE
+STORAGE: nuX_Base::rF
+STORAGE: nuX_Base::rP
 
 STORAGE: rnnu
 STORAGE: rJ
@@ -68,7 +68,7 @@ SCHEDULE nuX_M1_Reset IN HydroBaseX_InitialData BEFORE HydroBaseX_initial_data
 {
     LANG: C
 
-    WRITES: rN(everywhere) rE(everywhere) rF(everywhere) nuX_m1_mask(everywhere)
+    WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere) nuX_m1_mask(everywhere)
     WRITES: opacs(everywhere) nueave(everywhere)
 } "Initialize everything to zero"
 
@@ -109,7 +109,7 @@ if (set_to_equilibrium) {
         READS: HydroBaseX::Ye(everywhere)
         READS: fidu_vel(everywhere) fidu_w_lorentz(everywhere)
         READS: nuX_m1_mask(everywhere)
-        WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
+        WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
     } "Initialize WeakRates radiation in local thermodynamic equilibrium"
   }
   else if (CCTK_Equals(rates_lib, "NuRates")) {
@@ -127,7 +127,7 @@ if (set_to_equilibrium) {
         READS: HydroBaseX::Ye(everywhere)
         READS: fidu_vel(everywhere) fidu_w_lorentz(everywhere)
         READS: nuX_m1_mask(everywhere)
-        WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
+        WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
     } "Initialize NuRates radiation in local thermodynamic equilibrium"
   }
 }
@@ -144,8 +144,8 @@ SCHEDULE nuX_M1_CalcClosure IN nuX_M1_InitialGroup \
     READS: ADMBaseX::curv(everywhere)
     READS: fidu_vel(everywhere) nuX_m1_mask(everywhere) 
     READS: fidu_w_lorentz(everywhere)
-    READS: rN(everywhere) rE(everywhere) rF(everywhere)
-    WRITES: rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
+    READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
+    WRITES: nuX_Base::rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
     WRITES: chi(everywhere)
 } "Compute the M1 closure everywhere on the grid"
 
@@ -157,7 +157,7 @@ if (reset_to_equilibrium) {
     SCHEDULE nuX_M1_Reset AT CCTK_POST_RECOVER_VARIABLES
     {
         LANG: C
-        WRITES: rN(everywhere) rE(everywhere) rF(everywhere) nuX_m1_mask(everywhere)
+        WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere) nuX_m1_mask(everywhere)
     } "Initialize everything to zero"
 
     SCHEDULE nuX_M1_FiducialVelocity AT CCTK_POST_RECOVER_VARIABLES \
@@ -188,7 +188,7 @@ if (reset_to_equilibrium) {
           READS: HydroBaseX::Ye(everywhere)
           READS: fidu_vel(everywhere) fidu_w_lorentz(everywhere)
           READS: nuX_m1_mask(everywhere)
-          WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
+          WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
       } "Reset WeakRates radiation to local thermodynamic equilibrium"
     }
     else if (CCTK_Equals(rates_lib, "NuRates")) {
@@ -205,7 +205,7 @@ if (reset_to_equilibrium) {
           READS: HydroBaseX::Ye(everywhere)
           READS: fidu_vel(everywhere) fidu_w_lorentz(everywhere)
           READS: nuX_m1_mask(everywhere)
-          WRITES: rN(everywhere) rE(everywhere) rF(everywhere)
+          WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
       } "Reset NuRates radiation to local thermodynamic equilibrium"
     }
 
@@ -237,9 +237,9 @@ SCHEDULE nuX_M1_SyncConserved IN nuX_M1_RHSGroup AFTER nuX_M1_InitFluxesRHS
     LANG: C
     OPTIONS: SINGLEMAP
     SYNC: AsterX::cons_vector
-    SYNC: rN
-    SYNC: rE
-    SYNC: rF
+    SYNC: nuX_Base::rN
+    SYNC: nuX_Base::rE
+    SYNC: nuX_Base::rF
 } "Sync rN/rE/rF into ghost zones prior to closure/flux computations"
 
 SCHEDULE nuX_M1_FiducialVelocity IN nuX_M1_RHSGroup AFTER nuX_M1_SyncConserved
@@ -265,8 +265,8 @@ SCHEDULE nuX_M1_CalcClosure IN nuX_M1_RHSGroup AFTER nuX_M1_FiducialVelocity
     READS: ADMBaseX::curv(everywhere)
     READS: fidu_vel(everywhere) nuX_m1_mask(everywhere) 
     READS: fidu_w_lorentz(everywhere)
-    READS: rN(everywhere) rE(everywhere) rF(everywhere)
-    WRITES: rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
+    READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
+    WRITES: nuX_Base::rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
     WRITES: chi(everywhere)
 } "Compute the M1 closure everywhere on the grid"
 
@@ -308,7 +308,7 @@ SCHEDULE nuX_M1_SyncDerived IN nuX_M1_RHSGroup \
 {
     LANG: C
     OPTIONS: SINGLEMAP
-    SYNC: rP
+    SYNC: nuX_Base::rP
     SYNC: rJ
     SYNC: rHt
     SYNC: rH
@@ -332,9 +332,9 @@ if (include_fluxes) {
     	READS: ADMBaseX::curv(everywhere)
 
    	# neutrino conserved / moments
-    	READS: rN(everywhere) rE(everywhere) rF(everywhere)
+	READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
    	READS: rHt(everywhere) rH(everywhere)
-   	READS: rP(everywhere) rJ(everywhere)
+	READS: nuX_Base::rP(everywhere) rJ(everywhere)
 
         # opacities for A-factor in numerical flux
         READS: opacs(everywhere)
@@ -363,7 +363,7 @@ if (include_fluxes) {
     	READS: ADMBaseX::curv(everywhere)
 
     	# neutrino conserved variables used in the limiter stencil
-    	READS: rN(everywhere) rE(everywhere) rF(everywhere)
+	READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
 
     	# opacities (absorption + scattering) used in the A-factor
     	READS: opacs(everywhere)
@@ -387,7 +387,7 @@ if (include_GR_sources) {
         
         READS: ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
         READS: ADMBaseX::metric(everywhere) ADMBaseX::curv(everywhere)
-        READS: rE(everywhere) rF(everywhere) rP(everywhere)
+        READS: nuX_Base::rE(everywhere) nuX_Base::rF(everywhere) nuX_Base::rP(everywhere)
         READS: nuX_m1_mask(everywhere)
         READS: rF_rhs(everywhere) rE_rhs(everywhere)
         WRITES: rF_rhs(everywhere) rE_rhs(everywhere)
@@ -403,9 +403,9 @@ SCHEDULE nuX_M1_SyncConserved IN nuX_M1_ImplicitRHSGroup
     LANG: C
     OPTIONS: SINGLEMAP
     SYNC: AsterX::cons_vector
-    SYNC: rN
-    SYNC: rE
-    SYNC: rF
+    SYNC: nuX_Base::rN
+    SYNC: nuX_Base::rE
+    SYNC: nuX_Base::rF
 } "Sync the IMEX stage state before evaluating its implicit RHS"
 
 SCHEDULE nuX_M1_FiducialVelocity IN nuX_M1_ImplicitRHSGroup \
@@ -431,8 +431,8 @@ SCHEDULE nuX_M1_CalcClosure IN nuX_M1_ImplicitRHSGroup AFTER nuX_M1_FiducialVelo
     READS: ADMBaseX::curv(everywhere)
     READS: fidu_vel(everywhere) nuX_m1_mask(everywhere)
     READS: fidu_w_lorentz(everywhere)
-    READS: rN(everywhere) rE(everywhere) rF(everywhere)
-    WRITES: rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
+    READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
+    WRITES: nuX_Base::rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
     WRITES: chi(everywhere)
 } "Compute the M1 closure for the IMEX source RHS"
 
@@ -476,7 +476,7 @@ SCHEDULE nuX_M1_CalcSourceRHS IN nuX_M1_ImplicitRHSGroup \
     READS: ADMBaseX::metric(interior) ADMBaseX::curv(interior)
     READS: nuX_m1_mask(interior)
     READS: fidu_vel(interior) fidu_w_lorentz(interior)
-    READS: rN(interior) rE(interior) rF(interior)
+    READS: nuX_Base::rN(interior) nuX_Base::rE(interior) nuX_Base::rF(interior)
     READS: rJ(interior) rHt(interior) rH(interior)
     READS: opacs(interior)
 
@@ -521,8 +521,8 @@ SCHEDULE nuX_M1_CalcClosure IN nuX_M1_SourceGroup AFTER nuX_M1_FiducialVelocity
     READS: ADMBaseX::curv(everywhere)
     READS: fidu_vel(everywhere) nuX_m1_mask(everywhere)
     READS: fidu_w_lorentz(everywhere)
-    READS: rN(everywhere) rE(everywhere) rF(everywhere)
-    WRITES: rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
+    READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
+    WRITES: nuX_Base::rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
     WRITES: chi(everywhere)
 } "Compute the M1 closure for the implicit source step"
 
@@ -566,7 +566,7 @@ SCHEDULE nuX_M1_CalcUpdate IN nuX_M1_SourceGroup \
     READS: ADMBaseX::metric(interior) ADMBaseX::curv(interior)
     READS: nuX_m1_mask(interior)
     READS: fidu_vel(interior) fidu_w_lorentz(interior) 
-    READS: rN(interior) rE(interior) rF(interior)  
+    READS: nuX_Base::rN(interior) nuX_Base::rE(interior) nuX_Base::rF(interior)
     READS: rJ(interior) rHt(interior) rH(interior) 
     READS: opacs(interior) nueave(interior)
     READS: chi(interior)
@@ -577,10 +577,10 @@ SCHEDULE nuX_M1_CalcUpdate IN nuX_M1_SourceGroup \
     WRITES: fluidsources(interior)  
     WRITES: source_update_delta_N(interior) source_update_delta_E(interior)
     WRITES: source_update_delta_F(interior) source_limiter_theta(interior)
-    WRITES: rN(interior) rE(interior) rF(interior)
+    WRITES: nuX_Base::rN(interior) nuX_Base::rE(interior) nuX_Base::rF(interior)
     WRITES: AsterX::cons_vector(interior)
      
-    SYNC: chi rN rE rF fluidsources
+    SYNC: chi nuX_Base::rN nuX_Base::rE nuX_Base::rF fluidsources
 
 } "Semi-implicit conservative update of radiation and matter fields"
 
@@ -624,8 +624,8 @@ SCHEDULE nuX_M1_CalcClosure IN nuX_M1_PostStepDerived \
     READS: ADMBaseX::curv(everywhere)
     READS: fidu_vel(everywhere) nuX_m1_mask(everywhere)
     READS: fidu_w_lorentz(everywhere)
-    READS: rN(everywhere) rE(everywhere) rF(everywhere)
-    WRITES: rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
+    READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
+    WRITES: nuX_Base::rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
     WRITES: chi(everywhere)
 } "Update closure-derived fields after an ODE stage"
 
@@ -676,9 +676,9 @@ SCHEDULE nuX_M1_Sync IN nuX_M1_BoundaryConditions
     SYNC: ADMBaseX::shift
     SYNC: ADMBaseX::metric
     SYNC: ADMBaseX::curv
-    SYNC: rN
-    SYNC: rE
-    SYNC: rF
+    SYNC: nuX_Base::rN
+    SYNC: nuX_Base::rE
+    SYNC: nuX_Base::rF
 } "Synchronize geometry and radiation fields before post-step closure"
 
 SCHEDULE GROUP ApplyBCs AS nuX_M1_ApplyBCs IN nuX_M1_BoundaryConditions \
@@ -716,8 +716,8 @@ if (add_to_Tmunu) {
     {
         LANG: C
         OPTIONS: SINGLEMAP
-        SYNC: rE
-        SYNC: rF
+        SYNC: nuX_Base::rE
+        SYNC: nuX_Base::rF
     } "Sync radiation moments before stress-energy coupling"
 
     SCHEDULE nuX_M1_AddToTmunu IN nuX_M1_Tmunu
@@ -726,7 +726,7 @@ if (add_to_Tmunu) {
         READS: nuX_m1_mask(everywhere)
         READS: ADMBaseX::metric(everywhere) ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere) ADMBaseX::curv(everywhere)
         READS: fidu_w_lorentz(everywhere) fidu_vel(everywhere)
-        READS: rE(everywhere) rF(everywhere)
+        READS: nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
         READS: TmunuBaseX::eTtt(interior) TmunuBaseX::eTti(interior) TmunuBaseX::eTij(interior)
         WRITES: TmunuBaseX::eTtt(interior) TmunuBaseX::eTti(interior) TmunuBaseX::eTij(interior)
     } "Adds the contribution of radiation to the global stress-energy tensor"
@@ -771,8 +771,8 @@ SCHEDULE nuX_M1_CalcClosure AT CCTK_ANALYSIS
     READS: ADMBaseX::curv(everywhere)
     READS: fidu_vel(everywhere) nuX_m1_mask(everywhere) 
     READS: fidu_w_lorentz(everywhere)
-    READS: rN(everywhere) rE(everywhere) rF(everywhere) 
-    WRITES: rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
+    READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
+    WRITES: nuX_Base::rP(everywhere) rJ(everywhere) rHt(everywhere) rH(everywhere) rnnu(everywhere)
     WRITES: chi(everywhere)
 } "Compute the M1 closure everywhere on the grid"
 
@@ -794,7 +794,7 @@ SCHEDULE nuX_M1_CalcRadialFluxes AT CCTK_ANALYSIS \
     LANG: C
     READS: ADMBaseX::metric(everywhere) ADMBaseX::shift(everywhere) ADMBaseX::lapse(everywhere)
     READS: ADMBaseX::curv(everywhere)
-    READS: rHt(everywhere) rH(everywhere) rE(everywhere) rJ(everywhere) rN(everywhere) rF(everywhere)
+    READS: rHt(everywhere) rH(everywhere) nuX_Base::rE(everywhere) rJ(everywhere) nuX_Base::rN(everywhere) nuX_Base::rF(everywhere)
     READS: fidu_vel(everywhere) fidu_w_lorentz(everywhere)
     READS: nuX_m1_mask(everywhere)
     WRITES: radial_fluxes(everywhere)

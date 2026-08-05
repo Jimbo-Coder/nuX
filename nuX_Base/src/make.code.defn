@@ -1,0 +1,6 @@
+# Main make.code.defn file for thorn nuX_Base
+
+# nuX_Base is an interface-only thorn and has no source files.
+SRCS =
+
+SUBDIRS =
