@@ -13,7 +13,7 @@ export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 time ./simfactory/bin/sim \
     --machine="actions-$ACCELERATOR-$REAL_PRECISION" \
     create-run NuXTest01 --cores 1 --num-threads 2 \
-    --testsuite --select-tests=nuX_M1
+    --testsuite --select-tests=nuX
 
 TEST_OUTPUT_DIR="$(./simfactory/bin/sim \
     --machine="actions-$ACCELERATOR-$REAL_PRECISION" \
