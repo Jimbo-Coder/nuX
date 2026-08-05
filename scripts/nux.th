@@ -1,0 +1,193 @@
+# Component list for nuX CI
+
+!CRL_VERSION = 1.0
+
+!DEFINE ROOT = Cactus
+!DEFINE ARR  = $ROOT/arrangements
+!DEFINE COMPONENTLIST_TARGET = $ROOT/thornlists/
+
+# Cactus flesh
+!TARGET   = $ROOT
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/cactus.git
+!NAME     = flesh
+!CHECKOUT = .clang-format CONTRIBUTORS COPYRIGHT doc lib Makefile README.md src
+
+# Simulation Factory
+!TARGET   = $ROOT
+!TYPE     = git
+!URL      = https://bitbucket.org/simfactory/simfactory2.git
+!REPO_PATH= $1
+!NAME     = simfactory2
+!CHECKOUT = ./simfactory
+
+# Cactus utilities
+!TARGET   = $ROOT/utils
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/utilities.git
+!REPO_PATH= $2
+!CHECKOUT = ./ParameterFiles ./Scripts ./Syntax
+
+!TARGET   = $ROOT/bin
+!TYPE     = git
+!URL      = https://github.com/gridaphobe/CRL.git
+!CHECKOUT = GetComponents
+
+# CactusBase thorns
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/cactusbase.git
+!REPO_PATH= $2
+!CHECKOUT =
+CactusBase/Boundary
+CactusBase/CoordBase
+CactusBase/Fortran
+CactusBase/InitBase
+CactusBase/IOUtil
+CactusBase/SymBase
+CactusBase/Time
+
+# Cactus test support enabled by the AsterX CI machine configuration
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/cactustest.git
+!REPO_PATH= $2
+!CHECKOUT = CactusTest/TestAllTypes
+
+# CactusUtils thorns
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/cactusutils.git
+!REPO_PATH= $2
+!CHECKOUT =
+CactusUtils/NaNCatcher
+CactusUtils/TimerReport
+
+# External libraries
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/EinsteinToolkit/$1-$2
+!REPO_PATH = ../$1-$2
+!CHECKOUT =
+ExternalLibraries/BLAS
+ExternalLibraries/FFTW3
+ExternalLibraries/GSL
+ExternalLibraries/HDF5
+ExternalLibraries/hwloc
+ExternalLibraries/LAPACK
+ExternalLibraries/libjpeg
+ExternalLibraries/MPI
+ExternalLibraries/OpenSSL
+ExternalLibraries/OpenBLAS
+ExternalLibraries/PETSc
+ExternalLibraries/pthreads
+ExternalLibraries/zlib
+ExternalLibraries/LORENE
+
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/rhaas80/$1-$2
+!REPO_PATH = ../$1-$2
+!CHECKOUT =
+ExternalLibraries/ADIOS2
+ExternalLibraries/AMReX
+ExternalLibraries/NSIMD
+ExternalLibraries/openPMD
+ExternalLibraries/Silo
+ExternalLibraries/ssht
+ExternalLibraries/yaml_cpp
+
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/dradice/Boost.git
+!REPO_PATH = ../$2
+!CHECKOUT = ExternalLibraries/Boost
+
+# Numerical thorns
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/numerical.git
+!REPO_PATH= $2
+!CHECKOUT = Numerical/AEILocalInterp
+
+# CarpetX nuX branch
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/jaykalinani/CarpetX.git
+!REPO_PATH= $2
+!REPO_BRANCH = nuX
+!CHECKOUT =
+CarpetX/ADMBaseX
+CarpetX/Algo
+CarpetX/Arith
+CarpetX/BoxInBox
+CarpetX/CarpetX
+CarpetX/CarpetXRegrid
+CarpetX/CoordinatesX
+CarpetX/Derivs
+CarpetX/ErrorEstimator
+CarpetX/HydroBaseX
+CarpetX/Loop
+CarpetX/ODESolvers
+CarpetX/Subcycling
+CarpetX/TmunuBaseX
+
+# SpacetimeX nuX branch
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/jaykalinani/SpacetimeX.git
+!REPO_PATH= $2
+!REPO_BRANCH = nuX
+!CHECKOUT =
+SpacetimeX/Cowling
+SpacetimeX/KerrSchildX
+
+# AsterX nuX branch
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/jaykalinani/AsterX.git
+!REPO_PATH= $2
+!REPO_BRANCH = nuX
+!CHECKOUT =
+AsterX/AsterMasks
+AsterX/AsterSeeds
+AsterX/AsterUtils
+AsterX/AsterX
+AsterX/Con2PrimFactory
+AsterX/EOSX
+AsterX/ID_TabEOS_HydroQuantities
+AsterX/ReconX
+AsterX/TOVSolverX
+AsterX/scripts/actions-cpu-real64.cfg
+AsterX/scripts/actions-cpu-real64.ini
+AsterX/scripts/actions-cpu-real64.run
+AsterX/scripts/actions-cpu-real64.sub
+AsterX/scripts/actions-cuda-real64.cfg
+AsterX/scripts/actions-cuda-real64.ini
+AsterX/scripts/actions-cuda-real64.run
+AsterX/scripts/actions-cuda-real64.sub
+AsterX/scripts/actions-rocm-real64.cfg
+AsterX/scripts/actions-rocm-real64.ini
+AsterX/scripts/actions-rocm-real64.run
+AsterX/scripts/actions-rocm-real64.sub
+AsterX/scripts/defs.local.ini
+
+# BNSTools dev branch
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/jaykalinani/BNSTools.git
+!REPO_PATH= $2
+!REPO_BRANCH = dev
+!CHECKOUT = BNSTools/NRPyPlusTOVID
+
+# The workflow checkout supplies the nuX odesolvers branch or pull request.
+!TARGET   = $ARR
+!TYPE     = ignore
+!CHECKOUT =
+nuX/nuX_FakeRates
+nuX/nuX_M1
+nuX/nuX_NuRates
+nuX/nuX_NuRatesToy
+nuX/nuX_Seeds
+nuX/nuX_Utils
+nuX/nuX_WeakRates

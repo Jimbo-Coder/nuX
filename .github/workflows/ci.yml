@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [odesolvers]
+  pull_request:
+    branches: [odesolvers]
+  workflow_dispatch:
+
+jobs:
+  download-build-test:
+    strategy:
+      matrix:
+        accelerator: [cpu, cuda, rocm]
+
+    runs-on: ubuntu-latest
+    container: lwji/carpetx:${{matrix.accelerator}}-real64
+    env:
+      ACCELERATOR: ${{matrix.accelerator}}
+      REAL_PRECISION: real64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ccache
+        run: apt-get update -y && apt-get install -y ccache || true
+
+      - name: Restore compiler cache
+        uses: actions/cache@v5
+        with:
+          path: .ccache
+          key: ccache-${{matrix.accelerator}}-real64-${{github.sha}}
+          restore-keys: |
+            ccache-${{matrix.accelerator}}-real64-
+
+      - name: Download Cactus
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/download.sh"
+
+      - name: Build Cactus
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/build.sh"
+        env:
+          CCACHE_DIR: ${{github.workspace}}/.ccache
+
+      - name: Test nuX
+        if: matrix.accelerator == 'cpu'
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/test.sh"
+
+      - name: Upload test output
+        if: always() && matrix.accelerator == 'cpu'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nux-test-output
+          path: ${{env.TEST_OUTPUT_DIR}}
+          retention-days: 7
+          if-no-files-found: warn
