@@ -52,7 +52,8 @@ CactusBase/Time
 !TYPE     = git
 !URL      = https://bitbucket.org/cactuscode/cactustest.git
 !REPO_PATH= $2
-!CHECKOUT = CactusTest/TestAllTypes
+!CHECKOUT =
+CactusTest/TestAllTypes
 
 # CactusUtils thorns
 !TARGET   = $ARR
@@ -101,14 +102,16 @@ ExternalLibraries/yaml_cpp
 !TYPE     = git
 !URL      = https://github.com/dradice/Boost.git
 !REPO_PATH = ../$2
-!CHECKOUT = ExternalLibraries/Boost
+!CHECKOUT =
+ExternalLibraries/Boost
 
 # Numerical thorns
 !TARGET   = $ARR
 !TYPE     = git
 !URL      = https://bitbucket.org/cactuscode/numerical.git
 !REPO_PATH= $2
-!CHECKOUT = Numerical/AEILocalInterp
+!CHECKOUT =
+Numerical/AEILocalInterp
 
 # CarpetX nuX branch
 !TARGET   = $ARR
@@ -165,7 +168,8 @@ AsterX/TOVSolverX
 !URL      = https://github.com/jaykalinani/BNSTools.git
 !REPO_PATH= $2
 !REPO_BRANCH = dev
-!CHECKOUT = BNSTools/NRPyPlusTOVID
+!CHECKOUT =
+BNSTools/NRPyPlusTOVID
 
 # The workflow checkout supplies the nuX odesolvers branch or pull request.
 !TARGET   = $ARR

@@ -12,10 +12,11 @@ chmod a+x GetComponents
 ./GetComponents --no-parallel --shallow "$NUXSPACE/scripts/nux.th"
 
 cd Cactus
-ln -s "$NUXSPACE" repos
 mkdir -p arrangements/nuX
 pushd arrangements/nuX
 for thorn in "$NUXSPACE"/nuX_*; do
-    ln -s "../../repos/$(basename "$thorn")" .
+    test -f "$thorn/interface.ccl"
+    ln -s "$thorn" .
+    test -f "$(basename "$thorn")/interface.ccl"
 done
 popd
