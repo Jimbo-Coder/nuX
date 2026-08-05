@@ -1,12 +1,12 @@
 <!-- <img align="top" src="Docs/figures/nux.png" width="140"> -->
 
+[![CI](https://github.com/jaykalinani/nuX/actions/workflows/ci.yml/badge.svg?branch=odesolvers)](https://github.com/jaykalinani/nuX/actions/workflows/ci.yml)
+[![AMReX](https://amrex-codes.github.io/badges/powered%20by-AMReX-red.svg)](https://amrex-codes.github.io)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/jaykalinani/nuX)
+
 **nuX** is a GPU-accelerated neutrino-transport module for dynamical spacetimes, written in C++ and designed to run within the [Einstein Toolkit](https://einsteintoolkit.org/) using the [CarpetX](https://github.com/EinsteinToolkit/CarpetX) driver. **CarpetX** itself is built atop [AMReX](https://amrex-codes.github.io), a framework for block-structured adaptive mesh refinement (AMR).  
 **nuX** provides a two-moment (M1) evolution of radiation variables with analytic closures and multi-species support, interfacing with our GRMHD code [AsterX](https://github.com/EinsteinToolkit/AsterX).
 
-<!-- 
-[![GitHub CI](https://github.com/jaykalinani/nuX/workflows/CI/badge.svg)](https://github.com/jaykalinani/nuX/actions)  
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](./LICENSE.md)
--->
 ---
 
 ## Overview
