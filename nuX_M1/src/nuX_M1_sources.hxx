@@ -231,8 +231,10 @@ __source_jacobian_low_level(double *qpre, double Fup[4], double F2, double chi,
   double Jxy = -alpha * (kapas * HxdFy + W * kapa * vx * JdFy);
   double Jxz = -alpha * (kapas * HxdFz + W * kapa * vx * JdFz);
 
-  double Jyy = -alpha * (kapas * HydFx + W * kapa * vy * JdFx);
-  double Jyx = -alpha * (kapas * HydFy + W * kapa * vy * JdFy);
+  // The first suffix labels the source component and the second the flux
+  // derivative: Jyx = dS_y/dF_x and Jyy = dS_y/dF_y.
+  double Jyx = -alpha * (kapas * HydFx + W * kapa * vy * JdFx);
+  double Jyy = -alpha * (kapas * HydFy + W * kapa * vy * JdFy);
   double Jyz = -alpha * (kapas * HydFz + W * kapa * vy * JdFz);
 
   double Jzx = -alpha * (kapas * HzdFx + W * kapa * vz * JdFx);
