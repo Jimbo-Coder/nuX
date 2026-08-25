@@ -140,8 +140,16 @@ if (CCTK_Equals(nuX_test_case, "shadow")) {
 
   SCHEDULE nuX_M1_Seeds_ShadowBCs IN nuX_M1_BoundaryConditions AFTER nuX_M1_ApplyBCs {
     LANG: C
-    WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
+    READS: nuX_Base::rN(interior) nuX_Base::rE(interior) nuX_Base::rF(interior)
+    WRITES: nuX_Base::rN(interiorwithboundary) nuX_Base::rE(interiorwithboundary) nuX_Base::rF(interiorwithboundary)
   } "Apply shadow test inflow boundary conditions."
+
+  SCHEDULE nuX_M1_Seeds_ShadowBCs AS nuX_M1_Seeds_ShadowBCs_PreFlux \
+      IN nuX_M1_RHSGroup AFTER nuX_M1_SyncConserved BEFORE nuX_M1_FiducialVelocity {
+    LANG: C
+    READS: nuX_Base::rN(interior) nuX_Base::rE(interior) nuX_Base::rF(interior)
+    WRITES: nuX_Base::rN(interiorwithboundary) nuX_Base::rE(interiorwithboundary) nuX_Base::rF(interiorwithboundary)
+  } "Refresh shadow inflow after conserved sync and before closure/flux computations."
 }
 
 if (CCTK_Equals(nuX_test_case, "atmosphere")) {

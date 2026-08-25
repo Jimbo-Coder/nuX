@@ -25,7 +25,9 @@ ActiveThorns = "
 # Global variables
 # -----------------------------------------------------------------------------
 $nlevels = 1
-$ncells = 400
+$ncells_x = 120
+$ncells_y = 100
+$ncells_z = 4
 
 # -----------------------------------------------------------------------------
 # ADMBaseX
@@ -58,26 +60,33 @@ Cactus::cctk_final_time = 0.40
 # CarpetX
 # -----------------------------------------------------------------------------
 CarpetX::verbose = yes
+CarpetX::poison_undefined_values = yes
+CarpetX::poison_undefined_arrays = yes
 
-CarpetX::xmin = -0.5
-CarpetX::ymin = -0.5
-CarpetX::zmin = -0.5
+CarpetX::xmin = -2.0
+CarpetX::ymin = -2.5
+CarpetX::zmin = -0.1
+CarpetX::xmax = 4.0
+CarpetX::ymax = 2.5
+CarpetX::zmax = 0.1
 
-CarpetX::xmax = +0.5
-CarpetX::ymax = +0.5
-CarpetX::zmax = +0.5
+CarpetX::periodic = yes
+CarpetX::periodic_x = no
+CarpetX::periodic_y = no
+CarpetX::periodic_z = yes
+CarpetX::boundary_x = "neumann"
+CarpetX::boundary_y = "neumann"
+CarpetX::boundary_z = "none"
+CarpetX::boundary_upper_x = "neumann"
+CarpetX::boundary_upper_y = "neumann"
+CarpetX::boundary_upper_z = "none"
 
-CarpetX::boundary_x = "linear extrapolation"
-CarpetX::boundary_y = "linear extrapolation"
-CarpetX::boundary_z = "linear extrapolation"
-
-CarpetX::boundary_upper_x = "linear extrapolation"
-CarpetX::boundary_upper_y = "linear extrapolation"
-CarpetX::boundary_upper_z = "linear extrapolation"
-
-CarpetX::ncells_x = $ncells
-CarpetX::ncells_y = $ncells
-CarpetX::ncells_z = 2
+CarpetX::ncells_x = $ncells_x
+CarpetX::ncells_y = $ncells_y
+CarpetX::ncells_z = $ncells_z
+CarpetX::max_grid_size_x = 60
+CarpetX::max_grid_size_y = 50
+CarpetX::max_grid_size_z = 4
 
 CarpetX::max_num_levels = $nlevels
 CarpetX::regrid_every = 100000
@@ -88,18 +97,17 @@ CarpetX::regrid_error_threshold = 0.01
 
 CarpetX::prolongation_type = "ddf"
 CarpetX::ghost_size = 3
-CarpetX::dtfac = 0.40
- 
+CarpetX::dtfac = 0.2
+
 CarpetX::out_silo_vars = "
     HydroBaseX::rho
     HydroBaseX::vel
     HydroBaseX::eps
     HydroBaseX::press
     HydroBaseX::Bvec
-    CarpetX::regrid_error
     nuX_Base::rN
     nuX_Base::rE
-    nux_M1::rf
+    nuX_Base::rF
     nuX_Base::rP
 "
 
@@ -109,10 +117,9 @@ CarpetX::out_tsv_vars = "
     HydroBaseX::eps
     HydroBaseX::press
     HydroBaseX::Bvec
-    CarpetX::regrid_error
     nuX_Base::rN
     nuX_Base::rE
-    nux_M1::rf
+    nuX_Base::rF
     nuX_Base::rP
 "
 
@@ -164,7 +171,7 @@ ODESolvers::method = "IMEX42L"
 # -----------------------------------------------------------------------------
 # ReconX
 # -----------------------------------------------------------------------------
-ReconX::reconstruction_method = "wenoz"
+ReconX::reconstruction_method = "minmod"
 
 # -----------------------------------------------------------------------------
 # TimerReport
@@ -178,6 +185,7 @@ TimerReport::n_top_timers = 50
 # -----------------------------------------------------------------------------
 # nuX_M1
 # -----------------------------------------------------------------------------
+nuX_M1::rates_lib          = "FakeRates"
 nuX_M1::add_to_Tmunu       = "no"
 nuX_M1::backreact          = "no"
 nuX_M1::bc_type            = "none"  #? Not sure
