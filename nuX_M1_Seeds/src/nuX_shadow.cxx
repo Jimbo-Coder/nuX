@@ -101,40 +101,75 @@ extern "C" void nuX_M1_Seeds_ShadowBCs(CCTK_ARGUMENTS) {
     nz = 0.0;
   }
 
-  grid.loop_int_device<1, 1, 1>(
-      grid.nghostzones, [=] CCTK_DEVICE(const PointDesc &p) {
+  // Initialize physical ghost zones to vacuum.
+  grid.loop_bnd_device<1, 1, 1>(
+      grid.nghostzones,
+      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
         for (int ig = 0; ig < ncomponents; ++ig) {
-          int const i4D = layout_cc.linear(p.i, p.j, p.k, ig);
-          if ((p.BI[0] == -1.0) && (nx > 0.5) && (abs(p.y) < beam_radius)) {
-            rFx[i4D] = 1.0; // If on -X boundary, flux in +X
-            rE[i4D] = 1.0;
-            rN[i4D] = 1.0;
-            rFy[i4D] = 0.0;
-            rFz[i4D] = 0.0;
-          }
-          if ((p.BI[0] == 1.0) && (nx < -0.5) && (abs(p.y) < beam_radius)) {
-            rFx[i4D] = -1.0; // If on +X boundary, flux in -X
-            rE[i4D] = 1.0;
-            rN[i4D] = 1.0;
-            rFy[i4D] = 0.0;
-            rFz[i4D] = 0.0;
-          }
-          if ((p.BI[1] == -1.0) && (ny > 0.5) && (abs(p.x) < beam_radius)) {
-            rFy[i4D] = 1.0; // If on -Y boundary, flux in +Y
-            rE[i4D] = 1.0;
-            rN[i4D] = 1.0;
-            rFx[i4D] = 0.0;
-            rFz[i4D] = 0.0;
-          }
-          if ((p.BI[1] == 1.0) && (ny < -0.5) && (abs(p.x) < beam_radius)) {
-            rFy[i4D] = -1.0; // If on +Y boundary, flux in -Y
-            rE[i4D] = 1.0;
-            rN[i4D] = 1.0;
-            rFx[i4D] = 0.0;
-            rFz[i4D] = 0.0;
-          }
+          const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
+          rE[i4D] = 0.0;
+          rFx[i4D] = 0.0;
+          rFy[i4D] = 0.0;
+          rFz[i4D] = 0.0;
+          rN[i4D] = 0.0;
         }
       });
+
+  const auto set_inflow =
+      [=] CCTK_DEVICE(const PointDesc &p) CCTK_ATTRIBUTE_ALWAYS_INLINE {
+        bool is_inflow_boundary = false;
+        CCTK_REAL E_new = 0.0;
+        CCTK_REAL Fx_new = 0.0;
+        CCTK_REAL Fy_new = 0.0;
+        CCTK_REAL Fz_new = 0.0;
+        CCTK_REAL N_new = 0.0;
+
+        // Set interior (BI) and ghost (NI) inflow states for reconstruction.
+        // The sign selects the face; 0.5 filters small transverse components.
+        if (nx > 0.5 && (p.BI[0] == -1 || p.NI[0] < 0)) {
+          is_inflow_boundary = true;
+          if (fabs(p.y) < beam_radius) {
+            E_new = N_new = 1.0;
+            Fx_new = 1.0;
+          }
+        }
+        if (nx < -0.5 && (p.BI[0] == 1 || p.NI[0] > 0)) {
+          is_inflow_boundary = true;
+          if (fabs(p.y) < beam_radius) {
+            E_new = N_new = 1.0;
+            Fx_new = -1.0;
+          }
+        }
+        if (ny > 0.5 && (p.BI[1] == -1 || p.NI[1] < 0)) {
+          is_inflow_boundary = true;
+          if (fabs(p.x) < beam_radius) {
+            E_new = N_new = 1.0;
+            Fx_new = 0.0;
+            Fy_new = 1.0;
+          }
+        }
+        if (ny < -0.5 && (p.BI[1] == 1 || p.NI[1] > 0)) {
+          is_inflow_boundary = true;
+          if (fabs(p.x) < beam_radius) {
+            E_new = N_new = 1.0;
+            Fx_new = 0.0;
+            Fy_new = -1.0;
+          }
+        }
+        if (!is_inflow_boundary)
+          return;
+
+        for (int ig = 0; ig < ncomponents; ++ig) {
+          const int i4D = layout_cc.linear(p.i, p.j, p.k, ig);
+          rE[i4D] = E_new;
+          rFx[i4D] = Fx_new;
+          rFy[i4D] = Fy_new;
+          rFz[i4D] = Fz_new;
+          rN[i4D] = N_new;
+        }
+      };
+  grid.loop_int_device<1, 1, 1>(grid.nghostzones, set_inflow);
+  grid.loop_bnd_device<1, 1, 1>(grid.nghostzones, set_inflow);
 }
 
 } // namespace nuX_M1_Seeds
