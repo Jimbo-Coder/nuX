@@ -97,14 +97,6 @@ if (CCTK_Equals(nuX_test_case, "kerrschild")) {
     WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
   } "Apply Kerr inflow boundary injection (shadow-style)."
 
-  SCHEDULE nuX_M1_Seeds_KerrInflow AS nuX_M1_Seeds_KerrInflow_PreFlux \
-      IN nuX_M1_RHSGroup AFTER nuX_M1_SyncConserved BEFORE nuX_M1_FiducialVelocity {
-    LANG: C
-    READS: ADMBaseX::metric(everywhere) ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
-    READS: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
-    WRITES: nuX_Base::rN(everywhere) nuX_Base::rE(everywhere) nuX_Base::rF(everywhere)
-  } "Refresh Kerr inflow after conserved sync and before closure/flux computations."
-
   SCHEDULE nuX_M1_Seeds_KerrSchild_Mask IN nuX_M1_RHSGroup \
       AFTER nuX_M1_SetMask BEFORE nuX_M1_SyncConserved {
     LANG: C
@@ -144,12 +136,6 @@ if (CCTK_Equals(nuX_test_case, "shadow")) {
     WRITES: nuX_Base::rN(interiorwithboundary) nuX_Base::rE(interiorwithboundary) nuX_Base::rF(interiorwithboundary)
   } "Apply shadow test inflow boundary conditions."
 
-  SCHEDULE nuX_M1_Seeds_ShadowBCs AS nuX_M1_Seeds_ShadowBCs_PreFlux \
-      IN nuX_M1_RHSGroup AFTER nuX_M1_SyncConserved BEFORE nuX_M1_FiducialVelocity {
-    LANG: C
-    READS: nuX_Base::rN(interior) nuX_Base::rE(interior) nuX_Base::rF(interior)
-    WRITES: nuX_Base::rN(interiorwithboundary) nuX_Base::rE(interiorwithboundary) nuX_Base::rF(interiorwithboundary)
-  } "Refresh shadow inflow after conserved sync and before closure/flux computations."
 }
 
 if (CCTK_Equals(nuX_test_case, "atmosphere")) {
