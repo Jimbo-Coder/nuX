@@ -25,8 +25,8 @@ ActiveThorns = "
 # Global variables
 # -----------------------------------------------------------------------------
 $nlevels = 1
-$ncells_x = 120
-$ncells_y = 100
+$ncells_x = 480
+$ncells_y = 400
 $ncells_z = 4
 
 # -----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ Cactus::cctk_show_schedule = yes
 Cactus::presync_mode = "mixed-error"
 
 Cactus::terminate = "time"
-Cactus::cctk_final_time = 0.40
+Cactus::cctk_final_time = 10.0
 
 # -----------------------------------------------------------------------------
 # CarpetX
@@ -84,8 +84,8 @@ CarpetX::boundary_upper_z = "none"
 CarpetX::ncells_x = $ncells_x
 CarpetX::ncells_y = $ncells_y
 CarpetX::ncells_z = $ncells_z
-CarpetX::max_grid_size_x = 60
-CarpetX::max_grid_size_y = 50
+CarpetX::max_grid_size_x = 240
+CarpetX::max_grid_size_y = 200
 CarpetX::max_grid_size_z = 4
 
 CarpetX::max_num_levels = $nlevels
@@ -97,7 +97,7 @@ CarpetX::regrid_error_threshold = 0.01
 
 CarpetX::prolongation_type = "ddf"
 CarpetX::ghost_size = 3
-CarpetX::dtfac = 0.2
+CarpetX::dtfac = 0.4
 
 CarpetX::out_silo_vars = "
     HydroBaseX::rho
