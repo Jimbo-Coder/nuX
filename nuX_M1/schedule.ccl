@@ -638,7 +638,7 @@ if (CCTK_Equals(method, "semi-implicit")) {
 
     # Optional coupled provider reads fixed EOSX matter inside its alias.
     # Keep these dependencies conditional: FakeRates need not store temperature.
-    if (CCTK_Equals(rates_lib, "WeakLib")) {
+    if (CCTK_Equals(rates_lib, "WeakLib") || CCTK_Equals(rates_lib, "PyFluidRates")) {
       SCHEDULE nuX_M1_CalcUpdate IN nuX_M1_SemiImplicitStage \
           AFTER nuX_M1_PrepareSemiImplicitStage \
           BEFORE nuX_M1_AdvanceSemiImplicitStage
@@ -798,7 +798,7 @@ else if (CCTK_Equals(rates_lib, "NuRates")) {
 
   # Optional coupled provider reads fixed EOSX matter inside its alias.
   # Keep these dependencies conditional: FakeRates need not store temperature.
-  if (CCTK_Equals(rates_lib, "WeakLib")) {
+  if (CCTK_Equals(rates_lib, "WeakLib") || CCTK_Equals(rates_lib, "PyFluidRates")) {
     SCHEDULE nuX_M1_CalcUpdate IN nuX_M1_SourceGroup \
         AFTER (nuX_M1_CalcOpacityNuRates nuX_M1_CalcOpacityWeakRates \
                nuX_M1_CalcOpacityFakeRates nuX_M1_CalcClosure)

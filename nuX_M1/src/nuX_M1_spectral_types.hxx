@@ -3,7 +3,11 @@
 
 // Reuse the established FD integrals/inverse and per-member moment units.
 // This header does not initialize or call the NuRates reaction provider.
+#if __has_include("distribution.hpp")
+#include "distribution.hpp"
+#else
 #include "m1_opacities.hpp"
+#endif
 
 namespace nuX_M1 {
 struct spectral_opacities_t {

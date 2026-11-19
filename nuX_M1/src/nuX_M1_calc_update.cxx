@@ -445,9 +445,9 @@ extern "C" void nuX_M1_CalcUpdate(CCTK_ARGUMENTS) {
   // thick-limit state constructed below also seeds the nonlinear solve when
   // source_force_nonlinear is enabled.
   int provider_update = 0;
-  if (CCTK_Equals(rates_lib, "WeakLib")) {
+  if (CCTK_Equals(rates_lib, "WeakLib") || CCTK_Equals(rates_lib, "PyFluidRates")) {
     if (!CCTK_IsFunctionAliased("nuX_M1_CoupledCollisionUpdate"))
-      CCTK_ERROR("The selected WeakLib provider is not active");
+      CCTK_ERROR("The selected coupled collision provider is not active");
     collision_update_buffers_t buffers{rN, rE, rFx, rFy, rFz, chi,
         source_update_delta_N, source_update_delta_E, source_update_delta_Fx,
         source_update_delta_Fy, source_update_delta_Fz};

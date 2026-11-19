@@ -67,6 +67,10 @@ extern "C" void nuX_M1_ParamCheck(CCTK_ARGUMENTS) {
     if (!CCTK_IsThornActive("nuX_WeakLib")) {
       CCTK_PARAMWARN("nuX_M1::rates_lib=WeakLib requires nuX_WeakLib");
     }
+  } else if (CCTK_Equals(rates_lib, "PyFluidRates")) {
+    if (!CCTK_IsThornActive("PyFluidRates")) {
+      CCTK_PARAMWARN("nuX_M1::rates_lib=PyFluidRates requires PyFluidRates");
+    }
   } else if (!CCTK_IsThornActive("nuX_NuRates")) {
     CCTK_PARAMWARN("nuX_M1 requires the nuX_NuRates thorn when "
                    "nuX_M1::rates_lib is NuRates");
